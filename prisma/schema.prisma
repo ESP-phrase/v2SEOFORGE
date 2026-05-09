@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  lastLogin    DateTime?
+}
+
+model Site {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  name            String
+  wpUrl           String
+  wpUsername      String
+  // Encrypted with ENCRYPTION_KEY. Never stored in plaintext.
+  wpAppPasswordEnc String
+  niche           String   @default("")
+  audience        String   @default("")
+  expertVoice     String   @default("")
+  authorBioHtml   String   @default("")
+  maxPerDay       Int      @default(2)
+  minWordCount    Int      @default(1000)
+  publishStatus   String   @default("draft")
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  keywords Keyword[]
+  articles Article[]
+  runs     Run[]
+}
+
+model Keyword {
+  id          Int       @id @default(autoincrement())
+  siteId      Int
+  site        Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  keyword     String
+  intent      String    @default("informational")
+  status      String    @default("queued")
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+
+  articles Article[]
+  runs     Run[]
+
+  @@unique([siteId, keyword])
+  @@index([siteId, status])
+}
+
+model Article {
+  id              Int       @id @default(autoincrement())
+  siteId          Int
+  site            Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  keywordId       Int
+  keyword         Keyword   @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  title           String
+  slug            String
+  metaDescription String    @default("")
+  html            String
+  wordCount       Int       @default(0)
+  wpPostId        Int?
+  wpUrl           String?
+  status          String    @default("draft")
+  // JSON-encoded arrays
+  categoriesJson  String    @default("[]")
+  tagsJson        String    @default("[]")
+  inputTokens     Int       @default(0)
+  outputTokens    Int       @default(0)
+  costUsd         Float     @default(0)
+  createdAt       DateTime  @default(now())
+  publishedAt     DateTime?
+
+  socialPosts SocialPost[]
+  runs        Run[]
+
+  @@index([siteId, publishedAt])
+}
+
+model SocialPost {
+  id         Int      @id @default(autoincrement())
+  articleId  Int
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  platform   String
+  externalId String?
+  postedAt   DateTime @default(now())
+}
+
+model Run {
+  id          Int       @id @default(autoincrement())
+  siteId      Int?
+  site        Site?     @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  keywordId   Int?
+  keyword     Keyword?  @relation(fields: [keywordId], references: [id], onDelete: SetNull)
+  articleId   Int?
+  article     Article?  @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  action      String
+  status      String
+  message     String    @default("")
+  costUsd     Float     @default(0)
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([siteId, startedAt])
+}

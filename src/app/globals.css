@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background: #000;
+  color: #f1f1f1;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+}
+
+::selection {
+  background: rgba(196, 242, 78, 0.3);
+}
+
+/* Form-element resets to match the dark/lime theme */
+input, select, textarea {
+  background: #000;
+  color: #f1f1f1;
+  border: 1px solid #2a2a2a;
+  border-radius: 9px;
+  padding: 0.65rem 0.85rem;
+  width: 100%;
+  font: inherit;
+  transition: border-color 120ms;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #c4f24e;
+}
+input::placeholder, textarea::placeholder {
+  color: #5a5a5a;
+}
+textarea {
+  min-height: 9rem;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  resize: vertical;
+}
+
+/* Article preview rendered styles (used inside dangerouslySetInnerHTML) */
+.article-html h2 { font-size: 1.4rem; font-weight: 700; margin: 1.75rem 0 0.6rem; color: #f1f1f1; }
+.article-html h3 { font-size: 1.05rem; font-weight: 700; margin: 1.25rem 0 0.4rem; color: #f1f1f1; }
+.article-html p { margin: 0.6rem 0; line-height: 1.7; color: #d6d6d6; }
+.article-html ul, .article-html ol { margin: 0.6rem 0 0.6rem 1.4rem; line-height: 1.7; color: #d6d6d6; }
+.article-html li { margin: 0.2rem 0; }
+.article-html a { color: #c4f24e; }
+.article-html hr { border: 0; border-top: 1px solid #1f1f1f; margin: 1.75rem 0; }
+.article-html .author-bio { color: #7a7a7a; font-size: 0.9rem; }

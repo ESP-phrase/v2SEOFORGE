@@ -1,0 +1,101 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/db";
+import { encrypt } from "@/lib/encryption";
+import { testConnection } from "@/lib/wordpress";
+
+function slugify(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "site"
+  );
+}
+
+function getInt(form: FormData, key: string, fallback: number): number {
+  const v = Number(form.get(key));
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : fallback;
+}
+
+export async function createSiteAction(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const slug = slugify(String(formData.get("slug") ?? "") || name);
+  const wpUrl = String(formData.get("wpUrl") ?? "").trim();
+  const wpUsername = String(formData.get("wpUsername") ?? "").trim();
+  const password = String(formData.get("wpAppPassword") ?? "").trim();
+
+  if (!name || !wpUrl || !wpUsername || !password) {
+    redirect(`/sites/new?error=${encodeURIComponent("All required fields must be filled.")}`);
+  }
+
+  try {
+    const site = await prisma.site.create({
+      data: {
+        slug,
+        name,
+        wpUrl,
+        wpUsername,
+        wpAppPasswordEnc: encrypt(password),
+        niche: String(formData.get("niche") ?? "").trim(),
+        audience: String(formData.get("audience") ?? "").trim(),
+        expertVoice: String(formData.get("expertVoice") ?? "").trim(),
+        authorBioHtml: String(formData.get("authorBioHtml") ?? "").trim(),
+        maxPerDay: getInt(formData, "maxPerDay", 2),
+        minWordCount: getInt(formData, "minWordCount", 1000),
+        publishStatus: String(formData.get("publishStatus") ?? "draft"),
+      },
+    });
+    revalidatePath("/");
+    redirect(`/sites/${site.id}`);
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("Unique constraint")) {
+      redirect(`/sites/new?error=${encodeURIComponent("Slug already in use.")}`);
+    }
+    throw e;
+  }
+}
+
+export async function updateSiteAction(siteId: number, formData: FormData) {
+  const data: Record<string, unknown> = {
+    name: String(formData.get("name") ?? "").trim(),
+    slug: slugify(String(formData.get("slug") ?? "") || String(formData.get("name") ?? "")),
+    wpUrl: String(formData.get("wpUrl") ?? "").trim(),
+    wpUsername: String(formData.get("wpUsername") ?? "").trim(),
+    niche: String(formData.get("niche") ?? "").trim(),
+    audience: String(formData.get("audience") ?? "").trim(),
+    expertVoice: String(formData.get("expertVoice") ?? "").trim(),
+    authorBioHtml: String(formData.get("authorBioHtml") ?? "").trim(),
+    maxPerDay: getInt(formData, "maxPerDay", 2),
+    minWordCount: getInt(formData, "minWordCount", 1000),
+    publishStatus: String(formData.get("publishStatus") ?? "draft"),
+    active: formData.get("active") === "1",
+  };
+  const newPassword = String(formData.get("wpAppPassword") ?? "").trim();
+  if (newPassword) data.wpAppPasswordEnc = encrypt(newPassword);
+
+  await prisma.site.update({ where: { id: siteId }, data });
+  revalidatePath("/");
+  revalidatePath(`/sites/${siteId}`);
+  redirect(`/sites/${siteId}`);
+}
+
+export async function deleteSiteAction(siteId: number) {
+  await prisma.site.delete({ where: { id: siteId } });
+  revalidatePath("/");
+  redirect("/");
+}
+
+export async function testWordPressAction(siteId: number) {
+  const site = await prisma.site.findUnique({ where: { id: siteId } });
+  if (!site) return { ok: false, message: "site not found" };
+  return testConnection({
+    wpUrl: site.wpUrl,
+    wpUsername: site.wpUsername,
+    wpAppPasswordEnc: site.wpAppPasswordEnc,
+  });
+}
