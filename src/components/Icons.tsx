@@ -147,3 +147,43 @@ export const MicrosoftLogoIcon = ({ size = 18 }: IconProps) => (
     <rect x="11.5" y="11.5" width="9.5" height="9.5" fill="#FFBA08"/>
   </svg>
 );
+
+export const TagIcon = ({ className = "", size = 18 }: IconProps) => (
+  <svg {...s(size)} className={className} stroke="currentColor" strokeWidth={1.8}>
+    <path d="M3 11.5V4a1 1 0 0 1 1-1h7.5a1 1 0 0 1 .7.3l8.5 8.5a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 12.2a1 1 0 0 1-.3-.7Z" strokeLinejoin="round" />
+    <circle cx="7.5" cy="7.5" r="1.3" fill="currentColor" />
+  </svg>
+);
+
+export const UsersIcon = ({ className = "", size = 18 }: IconProps) => (
+  <svg {...s(size)} className={className} stroke="currentColor" strokeWidth={1.8}>
+    <circle cx="9" cy="8" r="3.5" />
+    <circle cx="17" cy="9" r="2.5" />
+    <path d="M2.5 20a6.5 6.5 0 0 1 13 0M15 20a5 5 0 0 1 6.5-4.8" strokeLinecap="round" />
+  </svg>
+);
+
+export const MessageIcon = ({ className = "", size = 18 }: IconProps) => (
+  <svg {...s(size)} className={className} stroke="currentColor" strokeWidth={1.8}>
+    <path d="M21 12a8 8 0 1 1-4-6.9L21 4l-1.1 4A8 8 0 0 1 21 12Z" strokeLinejoin="round" />
+  </svg>
+);
+
+export const CodeIcon = ({ className = "", size = 18 }: IconProps) => (
+  <svg {...s(size)} className={className} stroke="currentColor" strokeWidth={1.8}>
+    <path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const LinkIcon = ({ className = "", size = 18 }: IconProps) => (
+  <svg {...s(size)} className={className} stroke="currentColor" strokeWidth={1.8}>
+    <path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const ShieldIcon = ({ className = "", size = 18 }: IconProps) => (
+  <svg {...s(size)} className={className} stroke="currentColor" strokeWidth={1.8}>
+    <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z" strokeLinejoin="round" />
+    <path d="m9 12 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);

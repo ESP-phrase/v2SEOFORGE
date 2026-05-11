@@ -44,14 +44,21 @@ export default async function LandingPage() {
           </div>
           <div className="flex items-center gap-4 mt-10">
             <div className="flex -space-x-2">
-              {["#bef848", "#fbbf24", "#60a5fa", "#a78bfa"].map((c, i) => (
-                <div
+              {[
+                "https://randomuser.me/api/portraits/men/32.jpg",
+                "https://randomuser.me/api/portraits/women/44.jpg",
+                "https://randomuser.me/api/portraits/men/55.jpg",
+                "https://randomuser.me/api/portraits/women/68.jpg",
+              ].map((src, i) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
                   key={i}
-                  className="w-9 h-9 rounded-full border-2 border-bg grid place-items-center text-xs font-black text-black"
-                  style={{ background: c }}
-                >
-                  {["A", "M", "J", "K"][i]}
-                </div>
+                  src={src}
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full border-2 border-bg object-cover"
+                />
               ))}
             </div>
             <div>

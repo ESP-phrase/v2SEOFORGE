@@ -8,6 +8,7 @@ import { generateArticle } from "@/lib/anthropic";
 import { publish, type SiteCreds, type PublishStatus } from "@/lib/wordpress";
 import { addInternalLinks } from "@/lib/linker";
 import { fetchSerp, serpToPromptContext, type SerpAnalysis } from "@/lib/serp";
+import { fetchHeroImage, heroImageHtml } from "@/lib/unsplash";
 
 export type RunResult = {
   ok: boolean;
@@ -61,6 +62,9 @@ export async function runOneForSite(
   });
   if (!kw) return { ok: false, site: site.slug, skipped: "queue empty" };
 
+  const tag = `[${site.slug}/${kw.keyword.slice(0, 40)}]`;
+  console.log(`${tag} ▶ run started (dry=${dryRun})`);
+
   const run = await prisma.run.create({
     data: {
       siteId,
@@ -76,12 +80,37 @@ export async function runOneForSite(
   // SERP gap analysis — best-effort. If SerpApi fails or no key is set, fall
   // back to a regular (no-context) generation rather than failing the run.
   let serp: SerpAnalysis | null = null;
+  console.log(`${tag} ⋯ fetching SERP gap analysis (SerpApi)…`);
   try {
     serp = await fetchSerp(kw.keyword);
+    if (serp) {
+      console.log(
+        `${tag} ✓ SERP fetched · ${serp.topResults.length} results · cached=${serp.cached}`,
+      );
+    } else {
+      console.log(`${tag} ⚠ SERP skipped (no SERPAPI_KEY)`);
+    }
   } catch (e) {
-    console.warn("[runner] SerpApi failed, generating without competitive context:", e);
+    console.warn(`${tag} ⚠ SerpApi failed, generating without competitive context:`, e);
   }
   const serpContext = serpToPromptContext(serp);
+
+  // Hero image — best-effort. Skips silently if UNSPLASH_ACCESS_KEY is unset.
+  let heroHtml = "";
+  console.log(`${tag} ⋯ fetching hero image (Unsplash)…`);
+  try {
+    const img = await fetchHeroImage(kw.keyword);
+    heroHtml = heroImageHtml(img);
+    if (img) {
+      console.log(`${tag} ✓ hero image by ${img.photographer}`);
+    } else {
+      console.log(`${tag} ⚠ hero image skipped (no UNSPLASH_ACCESS_KEY or no match)`);
+    }
+  } catch (e) {
+    console.warn(`${tag} ⚠ Unsplash failed, generating without hero image:`, e);
+  }
+
+  console.log(`${tag} ⋯ calling Anthropic (Claude Sonnet) to generate article…`);
 
   let article;
   try {
@@ -94,6 +123,8 @@ export async function runOneForSite(
         audience: site.audience,
         expertVoice: site.expertVoice,
         authorBioHtml: site.authorBioHtml,
+        ctaHtml: site.ctaHtml,
+        heroImageHtml: heroHtml,
       },
       serpContext,
     );
@@ -107,9 +138,15 @@ export async function runOneForSite(
         completedAt: new Date(),
       },
     });
+    console.error(`${tag} ✗ generation failed:`, e);
     return { ok: false, site: site.slug, keyword: kw.keyword, error: `generation: ${e}` };
   }
 
+  console.log(
+    `${tag} ✓ article generated · ${article.word_count} words · $${article.cost_usd.toFixed(4)} · title="${article.title}"`,
+  );
+
+  console.log(`${tag} ⋯ inserting internal links…`);
   article.html = await addInternalLinks(article.html, siteId);
 
   const minWc = site.minWordCount || 1000;
@@ -120,30 +157,14 @@ export async function runOneForSite(
   if (!article.faq?.length) {
     qualityWarning = (qualityWarning ? `${qualityWarning}; ` : "") + "no FAQ section";
   }
-
-  if (dryRun) {
-    await prisma.keyword.update({ where: { id: kw.id }, data: { status: "dry_run" } });
-    await prisma.run.update({
-      where: { id: run.id },
-      data: {
-        status: "ok-dry",
-        message: `dry-run · ${article.word_count} words`,
-        costUsd: article.cost_usd,
-        completedAt: new Date(),
-      },
-    });
-    return {
-      ok: true,
-      site: site.slug,
-      keyword: kw.keyword,
-      title: article.title,
-      wordCount: article.word_count,
-      costUsd: article.cost_usd,
-      qualityWarning,
-      dryRun: true,
-    };
+  if (qualityWarning) {
+    console.warn(`${tag} ⚠ quality gate: ${qualityWarning}`);
+  } else {
+    console.log(`${tag} ✓ quality gate passed`);
   }
 
+  // Always save the article to the DB so the user can review it on the
+  // /articles/[id] page. Dry-run stops here; non-dry continues to WP publish.
   const saved = await prisma.article.create({
     data: {
       siteId,
@@ -161,6 +182,32 @@ export async function runOneForSite(
       serpJson: serp ? JSON.stringify(serp) : null,
     },
   });
+
+  if (dryRun) {
+    console.log(`${tag} ✓ dry-run complete — saved as draft, no WP publish (article id ${saved.id})`);
+    await prisma.keyword.update({ where: { id: kw.id }, data: { status: "dry_run" } });
+    await prisma.run.update({
+      where: { id: run.id },
+      data: {
+        status: "ok-dry",
+        message: `dry-run · ${article.word_count} words`,
+        articleId: saved.id,
+        costUsd: article.cost_usd,
+        completedAt: new Date(),
+      },
+    });
+    return {
+      ok: true,
+      site: site.slug,
+      keyword: kw.keyword,
+      title: article.title,
+      articleId: saved.id,
+      wordCount: article.word_count,
+      costUsd: article.cost_usd,
+      qualityWarning,
+      dryRun: true,
+    };
+  }
 
   if (qualityWarning) {
     await prisma.keyword.update({ where: { id: kw.id }, data: { status: "needs_review" } });
@@ -193,6 +240,8 @@ export async function runOneForSite(
     wpAppPasswordEnc: site.wpAppPasswordEnc,
   };
 
+  console.log(`${tag} ⋯ publishing to WordPress as "${site.publishStatus}"…`);
+
   try {
     const wp = await publish(
       {
@@ -211,21 +260,29 @@ export async function runOneForSite(
       data: {
         wpPostId: wp.id,
         wpUrl: wp.url,
-        status: "published",
-        publishedAt: new Date(),
+        // Only mark as published locally if WP confirms it went live. If WP
+        // accepted it but kept it as a draft (site publishStatus=draft), our
+        // article is still a draft awaiting human review in wp-admin.
+        status: wp.status === "publish" ? "published" : "draft",
+        publishedAt: wp.status === "publish" ? new Date() : null,
       },
     });
-    await prisma.keyword.update({ where: { id: kw.id }, data: { status: "published" } });
+    const liveSuffix = wp.status === "publish" ? "" : " (WP draft — needs publish in wp-admin)";
+    await prisma.keyword.update({
+      where: { id: kw.id },
+      data: { status: wp.status === "publish" ? "published" : "needs_review" },
+    });
     await prisma.run.update({
       where: { id: run.id },
       data: {
-        status: "published",
-        message: wp.url,
+        status: wp.status === "publish" ? "published" : "needs-review",
+        message: `${wp.url}${liveSuffix}`,
         articleId: saved.id,
         costUsd: article.cost_usd,
         completedAt: new Date(),
       },
     });
+    console.log(`${tag} ✓ pushed to WP → ${wp.url} (wp status: ${wp.status})`);
     return {
       ok: true,
       site: site.slug,
@@ -238,12 +295,14 @@ export async function runOneForSite(
       costUsd: article.cost_usd,
     };
   } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`${tag} ✗ WordPress publish failed: ${msg}`);
     await prisma.keyword.update({ where: { id: kw.id }, data: { status: "publish_failed" } });
     await prisma.run.update({
       where: { id: run.id },
       data: {
         status: "failed",
-        message: `publish: ${e instanceof Error ? e.message : String(e)}`,
+        message: `publish: ${msg}`,
         articleId: saved.id,
         costUsd: article.cost_usd,
         completedAt: new Date(),
@@ -255,7 +314,7 @@ export async function runOneForSite(
       keyword: kw.keyword,
       title: article.title,
       articleId: saved.id,
-      error: `publish: ${e instanceof Error ? e.message : String(e)}`,
+      error: `publish: ${msg}`,
     };
   }
 }

@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled connection (Neon's pooler URL) — used at runtime by serverless fns
+  url       = env("DATABASE_URL")
+  // Direct connection — used by Prisma migrations and `db push`
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 // Auth.js v5 standard models (cuid string IDs)
@@ -64,6 +67,36 @@ model SerpCache {
   fetchedAt DateTime @default(now())
 }
 
+// Backlink outreach prospects — resource pages, niche blogs, etc. that should
+// link to one of the site's articles. Each row is a single target. The whole
+// pipeline (find → score → draft email → manual send → track) lives off this.
+model OutreachProspect {
+  id              Int       @id @default(autoincrement())
+  siteId          Int
+  site            Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  url             String
+  domain          String
+  pageTitle       String
+  snippet         String    @default("")
+  searchSeed      String    @default("") // the query that surfaced this prospect
+  relevanceScore  Int       @default(50)
+  scoreReason     String    @default("")
+  status          String    @default("new") // new | drafted | sent | replied | won | dead
+  contactEmail    String?
+  draftSubject    String    @default("")
+  draftBody       String    @default("")
+  notes           String    @default("")
+  targetArticleId Int?
+  targetArticle   Article?  @relation(fields: [targetArticleId], references: [id], onDelete: SetNull)
+  sentAt          DateTime?
+  repliedAt       DateTime?
+  linkedAt        DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@unique([siteId, url])
+  @@index([siteId, status])
+}
+
 model Site {
   id              Int      @id @default(autoincrement())
   slug            String   @unique
@@ -76,6 +109,7 @@ model Site {
   audience        String   @default("")
   expertVoice     String   @default("")
   authorBioHtml   String   @default("")
+  ctaHtml         String   @default("")
   maxPerDay       Int      @default(2)
   minWordCount    Int      @default(1000)
   publishStatus   String   @default("draft")
@@ -85,6 +119,7 @@ model Site {
   keywords Keyword[]
   articles Article[]
   runs     Run[]
+  outreachProspects OutreachProspect[]
 }
 
 model Keyword {
@@ -130,6 +165,7 @@ model Article {
 
   socialPosts SocialPost[]
   runs        Run[]
+  outreachProspects OutreachProspect[]
 
   @@index([siteId, publishedAt])
 }

@@ -67,6 +67,32 @@ export default async function ArticlePage({
         }
       />
 
+      {article.wpUrl ? (
+        <div className="bg-accent-dim border border-accent-border rounded-xl px-4 py-3 mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[0.65rem] uppercase tracking-wider text-accent font-bold mb-0.5">
+              Published — live URL
+            </div>
+            <a
+              href={article.wpUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-text font-mono text-sm break-all hover:text-accent"
+            >
+              {article.wpUrl}
+            </a>
+          </div>
+          <a
+            href={article.wpUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-accent text-black rounded-lg text-sm font-bold hover:brightness-110 no-underline shrink-0"
+          >
+            Open live ↗
+          </a>
+        </div>
+      ) : null}
+
       {saved ? (
         <div className="bg-accent-dim text-accent border border-accent-border rounded-lg px-3.5 py-2.5 mb-4 text-sm">
           Saved.

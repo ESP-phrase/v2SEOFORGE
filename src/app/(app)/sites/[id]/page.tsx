@@ -91,6 +91,27 @@ export default async function SiteDetailPage({
         </div>
       ) : null}
 
+      <div className="flex gap-2 flex-wrap mb-5">
+        <Link
+          href={`/sites/${siteId}/published`}
+          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
+        >
+          Published articles →
+        </Link>
+        <Link
+          href={`/sites/${siteId}/backlinks`}
+          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
+        >
+          Backlink outreach →
+        </Link>
+        <Link
+          href={`/sites/${siteId}/research`}
+          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
+        >
+          ⚡ Keyword research →
+        </Link>
+      </div>
+
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 mb-5">
         <StatTile value={queued} label="In queue" />
         <StatTile value={`${publishedToday}/${site.maxPerDay}`} label="Today" />
@@ -138,7 +159,14 @@ export default async function SiteDetailPage({
         </Card>
 
         <Card>
-          <CardTitle title="Recent articles" desc={`${articles.length} shown`} />
+          <CardTitle
+            title="Recent articles"
+            right={
+              <Link href={`/sites/${siteId}/published`} className="text-sm text-accent">
+                View published →
+              </Link>
+            }
+          />
           <table className="w-full text-sm">
             <thead>
               <tr>
