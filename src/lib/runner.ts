@@ -253,7 +253,12 @@ export async function runOneForSite(
   // Native target: skip WordPress entirely. Mark the article published and
   // surface it at /blog/[slug] on this app. Saves the same cost as WP publish.
   if (site.targetType === "native") {
-    const nativeUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://seoforge.org"}/blog/${article.slug}`;
+    // Prefer the blog subdomain for canonical URLs if set, falls back to /blog
+    // on the main app domain. Both routes serve the same content via middleware.
+    const blogBase =
+      process.env.NEXT_PUBLIC_BLOG_URL?.replace(/\/$/, "") ??
+      `${process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "https://seoforge.org"}/blog`;
+    const nativeUrl = `${blogBase}/${article.slug}`;
     const goLive = site.publishStatus === "publish";
     await prisma.article.update({
       where: { id: saved.id },
