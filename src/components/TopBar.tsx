@@ -9,6 +9,7 @@ const NAV = [
   { href: "/dashboard", label: "Sites" },
   { href: "/sites/new", label: "Add site" },
   { href: "/analysis", label: "Analysis" },
+  { href: "/analytics", label: "Analytics" },
   { href: "/backlinks", label: "Backlinks" },
   { href: "/activity", label: "Activity" },
 ];
@@ -21,13 +22,16 @@ export function TopBar({ username }: { username?: string }) {
         pathname === "/dashboard" ||
         (pathname.startsWith("/sites/") &&
           !pathname.endsWith("/backlinks") &&
-          !pathname.endsWith("/analysis")) ||
+          !pathname.endsWith("/analysis") &&
+          !pathname.endsWith("/analytics")) ||
         pathname.startsWith("/articles/")
       );
     if (href === "/backlinks")
       return pathname === "/backlinks" || pathname.endsWith("/backlinks");
     if (href === "/analysis")
       return pathname === "/analysis" || pathname.endsWith("/analysis");
+    if (href === "/analytics")
+      return pathname === "/analytics" || pathname.endsWith("/analytics");
     return pathname === href || pathname.startsWith(href + "/");
   };
 

@@ -119,6 +119,7 @@ model Site {
   articles Article[]
   runs     Run[]
   outreachProspects OutreachProspect[]
+  pageViews         PageView[]
 }
 
 model Keyword {
@@ -165,6 +166,7 @@ model Article {
   socialPosts SocialPost[]
   runs        Run[]
   outreachProspects OutreachProspect[]
+  pageViews   PageView[]
 
   @@index([siteId, publishedAt])
 }
@@ -176,6 +178,27 @@ model SocialPost {
   platform   String
   externalId String?
   postedAt   DateTime @default(now())
+}
+
+// Self-hosted pageview tracking. Articles published to WordPress include a
+// tiny beacon snippet that POSTs to /api/track on every load. Stored raw so we
+// can aggregate by article, day, country, or referrer in the Analytics tab.
+model PageView {
+  id        BigInt   @id @default(autoincrement())
+  siteId    Int?
+  site      Site?    @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  articleId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  path      String   @default("")
+  referrer  String   @default("")
+  country   String   @default("")
+  ua        String   @default("")
+  ipHash    String   @default("") // sha256 of IP — for unique counts without storing IPs
+  isBot     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([siteId, createdAt])
+  @@index([articleId, createdAt])
 }
 
 model Run {
