@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/PageHeader";
+import { SiteTabs } from "@/components/SiteTabs";
 import { Panel } from "@/components/Panel";
 import { StatTile } from "@/components/StatTile";
 import { Pill } from "@/components/Pill";
@@ -69,6 +70,7 @@ export default async function AnalysisPage({
 
   return (
     <>
+      <SiteTabs siteId={siteId} siteName={site.name} />
       <PageHeader
         title={`SEO Analysis · ${site.name}`}
         subtitle={

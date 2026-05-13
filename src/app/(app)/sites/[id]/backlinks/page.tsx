@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/PageHeader";
 import { BacklinksWorkbench } from "@/components/BacklinksWorkbench";
+import { SiteTabs } from "@/components/SiteTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ export default async function BacklinksPage({
 
   return (
     <>
+      <SiteTabs siteId={siteId} siteName={site.name} />
       <PageHeader
         title={`Backlinks · ${site.name}`}
         subtitle={

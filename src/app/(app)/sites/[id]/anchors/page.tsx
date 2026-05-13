@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Panel } from "@/components/Panel";
 import { analyzeDistribution, type AnchorType } from "@/lib/anchorText";
 import { BacklinkImporter } from "@/components/BacklinkImporter";
+import { SiteTabs } from "@/components/SiteTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -54,9 +55,10 @@ export default async function AnchorAnalysisPage({ params }: { params: Promise<{
 
   return (
     <>
+      <SiteTabs siteId={siteId} siteName={site.name} />
       <PageHeader
         title="Anchor-text diversity"
-        subtitle={`${site.name} · ${dist.total} backlinks from ${referringDomains} domains`}
+        subtitle={`${dist.total} backlinks from ${referringDomains} domains`}
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">

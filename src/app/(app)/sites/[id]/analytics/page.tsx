@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/PageHeader";
+import { SiteTabs } from "@/components/SiteTabs";
 import { Panel } from "@/components/Panel";
 import { getRefreshToken, queryAnalytics, ymd, type GscRow } from "@/lib/gsc";
 
@@ -120,6 +121,7 @@ export default async function SiteAnalyticsPage({ params }: { params: Promise<{ 
 
   return (
     <>
+      <SiteTabs siteId={siteId} siteName={site.name} />
       <PageHeader
         title={`${site.name} · Analytics`}
         subtitle={site.wpUrl}

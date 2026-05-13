@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardTitle } from "@/components/Card";
 import { ResearchForm } from "@/components/ResearchForm";
+import { SiteTabs } from "@/components/SiteTabs";
 
 export default async function ResearchPage({
   params,
@@ -16,6 +17,7 @@ export default async function ResearchPage({
 
   return (
     <>
+      <SiteTabs siteId={siteId} siteName={site.name} />
       <PageHeader
         title="Keyword research"
         subtitle={

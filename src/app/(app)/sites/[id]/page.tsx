@@ -10,6 +10,7 @@ import { Button } from "@/components/Button";
 import { RunWidget } from "@/components/RunWidget";
 import { TestWordPressButton } from "@/components/TestWordPressButton";
 import { CustomDomainPanel } from "@/components/CustomDomainPanel";
+import { SiteTabs } from "@/components/SiteTabs";
 
 export default async function SiteDetailPage({
   params,
@@ -86,44 +87,13 @@ export default async function SiteDetailPage({
         }
       />
 
+      <SiteTabs siteId={siteId} />
+
       {added ? (
         <div className="bg-accent-dim text-accent border border-accent-border rounded-lg px-3.5 py-2.5 mb-4 text-sm">
           Added {added} new keyword(s). {dupes && Number(dupes) > 0 ? `${dupes} were duplicates.` : ""}
         </div>
       ) : null}
-
-      <div className="flex gap-2 flex-wrap mb-5">
-        <Link
-          href={`/sites/${siteId}/published`}
-          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
-        >
-          Published articles →
-        </Link>
-        <Link
-          href={`/sites/${siteId}/backlinks`}
-          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
-        >
-          Backlink outreach →
-        </Link>
-        <Link
-          href={`/sites/${siteId}/research`}
-          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
-        >
-          ⚡ Keyword research →
-        </Link>
-        <Link
-          href={`/sites/${siteId}/cluster`}
-          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
-        >
-          🕸 Cluster planner →
-        </Link>
-        <Link
-          href={`/sites/${siteId}/anchors`}
-          className="px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-sm font-semibold text-text hover:bg-surface-2 transition-colors no-underline"
-        >
-          ⚓ Anchor diversity →
-        </Link>
-      </div>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 mb-5">
         <StatTile value={queued} label="In queue" />

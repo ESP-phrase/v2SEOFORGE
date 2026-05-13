@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/Card";
 import { Pill } from "@/components/Pill";
+import { SiteTabs } from "@/components/SiteTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function PublishedArticlesPage({
 
   return (
     <>
+      <SiteTabs siteId={siteId} siteName={site.name} />
       <PageHeader
         title={`Published articles · ${site.name}`}
         subtitle={
