@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { signIn, signOut } from "@/lib/auth";
 
-export async function sendMagicLinkAction(formData: FormData) {
+export async function sendMagicLinkAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email || !email.includes("@")) {
     redirect(`/login?error=${encodeURIComponent("Enter a valid email.")}`);
@@ -32,12 +32,12 @@ export async function sendMagicLinkAction(formData: FormData) {
   }
 }
 
-export async function signOutAction() {
+export async function signOutAction(): Promise<void> {
   await signOut({ redirect: false });
   redirect("/login");
 }
 
-export async function signInWithGoogleAction() {
+export async function signInWithGoogleAction(): Promise<void> {
   // Let Auth.js handle the OAuth redirect to Google.
   await signIn("google", { redirectTo: "/dashboard" });
 }
@@ -53,7 +53,7 @@ export async function signInWithGoogleAction() {
  * Disable in production by removing the env var. Without it, the action and
  * the button on /login both refuse to render.
  */
-export async function adminQuickLoginAction() {
+export async function adminQuickLoginAction(): Promise<void> {
   if (process.env.ADMIN_QUICK_LOGIN !== "1") {
     redirect("/login?error=" + encodeURIComponent("Admin quick login is disabled."));
   }

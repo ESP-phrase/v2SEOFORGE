@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 
-export async function disconnectGscAction(formData: FormData) {
+export async function disconnectGscAction(formData: FormData): Promise<void> {
   const siteId = Number(formData.get("siteId"));
   if (!siteId) return;
   await prisma.site.update({

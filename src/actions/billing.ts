@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { stripe, priceIdFor, appUrl, isStripeConfigured, type PlanId, type Cadence } from "@/lib/stripe";
 
-export async function startCheckoutAction(formData: FormData) {
+export async function startCheckoutAction(formData: FormData): Promise<void> {
   const plan = String(formData.get("plan") ?? "") as PlanId;
   const cadence = String(formData.get("cadence") ?? "monthly") as Cadence;
 
@@ -53,7 +53,7 @@ export async function startCheckoutAction(formData: FormData) {
   redirect(checkout.url);
 }
 
-export async function openBillingPortalAction() {
+export async function openBillingPortalAction(): Promise<void> {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
