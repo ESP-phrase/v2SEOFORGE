@@ -18,15 +18,20 @@ export async function GET(req: NextRequest) {
   const siteId = Number(req.nextUrl.searchParams.get("siteId"));
   if (!siteId) return NextResponse.json({ error: "missing siteId" }, { status: 400 });
 
-  const articles = await prisma.article.findMany({
-    where: { siteId, status: "published" },
-    orderBy: { publishedAt: "desc" },
-    take: 50,
-  });
+  const [site, articles] = await Promise.all([
+    prisma.site.findUnique({ where: { id: siteId }, select: { minWordCount: true } }),
+    prisma.article.findMany({
+      where: { siteId, status: "published" },
+      orderBy: { publishedAt: "desc" },
+      take: 50,
+    }),
+  ]);
+  const minWordCount = site?.minWordCount ?? 1000;
+  const siteHasMultipleArticles = articles.length > 1;
 
   const scored = articles
     .map((a) => {
-      const card = scoreArticle(a);
+      const card = scoreArticle(a, { minWordCount, siteHasMultipleArticles });
       const failing = card.checks.filter((c) => !c.pass);
       return {
         id: a.id,
