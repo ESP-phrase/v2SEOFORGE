@@ -71,6 +71,19 @@ export async function ToolsHub() {
         </span>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {/* Add another site — always first card */}
+        <Link
+          href="/sites/new"
+          className="flex flex-col p-4 rounded-xl border-2 border-dashed border-border bg-card-grad/40 hover:border-accent hover:bg-accent-dim transition-colors no-underline"
+        >
+          <div className="text-2xl mb-2">➕</div>
+          <div className="font-bold text-text text-sm mb-1 leading-snug">
+            Add another site
+          </div>
+          <div className="text-muted text-xs leading-snug">
+            New WordPress install or native blog. Takes 30 seconds.
+          </div>
+        </Link>
         {TOOLS.map((t) => (
           <div
             key={t.slug}

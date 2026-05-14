@@ -417,7 +417,7 @@ export default async function HomePage({
           title="Top Performing Sites"
           right={
             <Link href="/sites/new" className="text-xs text-accent">
-              View all
+              + Add site
             </Link>
           }
         >
