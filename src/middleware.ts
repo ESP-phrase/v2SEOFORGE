@@ -8,6 +8,7 @@ const PUBLIC_PATHS = [
   "/api/cron",
   "/api/stripe",
   "/api/domains",
+  "/api/og",
   "/_next",
   "/_clarity",
   "/favicon",
