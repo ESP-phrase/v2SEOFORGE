@@ -54,7 +54,8 @@ async function syncFromSubscription(sub: Stripe.Subscription) {
         userId: user.id,
         value,
         currency: "USD",
-        eventId: sub.id, // dedupe with any pixel-side Purchase event
+        itemCount: 1,
+        conversionId: sub.id, // dedupe with any pixel-side Purchase event
       });
     } catch {
       /* never block subscription sync on tracking */
