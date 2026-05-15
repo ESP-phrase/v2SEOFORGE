@@ -51,6 +51,21 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  // ── Reddit click attribution ─────────────────────────────────────────
+  // Reddit appends ?rdt_cid=... to ad clicks. Cookie it so our server-side
+  // Conversions API can attribute the eventual signup/purchase.
+  const rdtCid = req.nextUrl.searchParams.get("rdt_cid");
+  if (rdtCid) {
+    const res = NextResponse.next();
+    res.cookies.set("sf_rdt_cid", rdtCid, {
+      maxAge: 30 * 24 * 3600,
+      sameSite: "lax",
+      secure: true,
+      path: "/",
+    });
+    return res;
+  }
+
   // ── Blog subdomain routing ───────────────────────────────────────────────
   // blog.seoforge.org → rewrite to /blog/* so the same Next.js routes serve.
   //   blog.seoforge.org/             → /blog

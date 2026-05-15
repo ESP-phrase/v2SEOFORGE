@@ -189,6 +189,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { sendWelcomeEmail } = await import("@/lib/email");
         void sendWelcomeEmail(user.email, user.name);
       }
+      // Reddit conversion: SignUp + Lead (free Hobby plan)
+      try {
+        const { sendRedditEvent } = await import("@/lib/redditCapi");
+        await sendRedditEvent({
+          eventName: "SignUp",
+          email: user.email,
+          userId: user.id,
+        });
+        await sendRedditEvent({
+          eventName: "Lead",
+          email: user.email,
+          userId: user.id,
+        });
+      } catch {
+        /* never block signup on tracking */
+      }
     },
   },
 });

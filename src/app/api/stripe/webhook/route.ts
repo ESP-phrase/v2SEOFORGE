@@ -29,6 +29,8 @@ async function syncFromSubscription(sub: Stripe.Subscription) {
   const user = await prisma.user.findFirst({ where: { stripeCustomerId: customerId } });
   if (!user) return;
 
+  const wasHobby = user.plan === "hobby";
+
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -40,6 +42,24 @@ async function syncFromSubscription(sub: Stripe.Subscription) {
       // Don't reset usage here — only invoice.payment_succeeded does that.
     },
   });
+
+  // Reddit conversion: fire Purchase when a hobby user upgrades to a paid plan.
+  if (active && wasHobby && plan !== "hobby") {
+    try {
+      const { sendRedditEvent } = await import("@/lib/redditCapi");
+      const value = plan === "operator" ? 29 : plan === "agency" ? 149 : 0;
+      await sendRedditEvent({
+        eventName: "Purchase",
+        email: user.email,
+        userId: user.id,
+        value,
+        currency: "USD",
+        eventId: sub.id, // dedupe with any pixel-side Purchase event
+      });
+    } catch {
+      /* never block subscription sync on tracking */
+    }
+  }
 }
 
 export async function POST(req: NextRequest) {
