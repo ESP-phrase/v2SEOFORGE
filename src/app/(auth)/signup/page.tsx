@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { signUpAction } from "@/actions/signup";
 import { signInWithGoogleAction } from "@/actions/auth";
-import { signInWithPasswordAction } from "@/actions/signup";
 import { SparkIcon } from "@/components/Icons";
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
@@ -14,10 +14,12 @@ export default async function LoginPage({
     <>
       <div className="text-center mb-7">
         <h1 className="text-3xl font-extrabold inline-flex items-center gap-2 tracking-tight">
-          Welcome back
+          Create your account
           <SparkIcon size={22} className="text-accent" />
         </h1>
-        <div className="text-muted text-sm mt-2">Sign in to your SEOForge account.</div>
+        <div className="text-muted text-sm mt-2">
+          Free forever. No credit card required.
+        </div>
       </div>
 
       <div className="relative">
@@ -59,12 +61,23 @@ export default async function LoginPage({
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-border" />
             <span className="text-muted-2 text-[0.65rem] uppercase tracking-wider font-bold">
-              or
+              or sign up with email
             </span>
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          <form action={signInWithPasswordAction} className="space-y-3">
+          <form action={signUpAction} className="space-y-3">
+            <div>
+              <label className="block text-muted text-[0.7rem] uppercase tracking-wider font-semibold mb-1.5">
+                Name (optional)
+              </label>
+              <input
+                name="name"
+                type="text"
+                placeholder="Your name"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-lg text-sm text-text focus:outline-none focus:border-accent-border"
+              />
+            </div>
             <div>
               <label className="block text-muted text-[0.7rem] uppercase tracking-wider font-semibold mb-1.5">
                 Email
@@ -86,8 +99,9 @@ export default async function LoginPage({
                 name="password"
                 type="password"
                 required
-                autoComplete="current-password"
-                placeholder="Your password"
+                minLength={6}
+                autoComplete="new-password"
+                placeholder="At least 6 characters"
                 className="w-full px-3 py-2.5 bg-bg border border-border rounded-lg text-sm text-text focus:outline-none focus:border-accent-border"
               />
             </div>
@@ -95,14 +109,14 @@ export default async function LoginPage({
               type="submit"
               className="w-full px-4 py-2.5 bg-accent text-black rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors mt-2"
             >
-              Sign in →
+              Create account →
             </button>
           </form>
 
           <div className="text-muted text-xs text-center mt-5">
-            New here?{" "}
-            <Link href="/signup" className="text-accent hover:underline">
-              Create an account
+            Already have an account?{" "}
+            <Link href="/login" className="text-accent hover:underline">
+              Sign in
             </Link>
           </div>
         </div>
