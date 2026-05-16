@@ -6,7 +6,7 @@
  * suggestKeywords returns long-tail keyword candidates with intent tags.
  */
 import Anthropic from "@anthropic-ai/sdk";
-import { getEnv } from "@/lib/envFallback";
+import { createLLMClient, resolveModel } from "@/lib/llmClient";
 
 const ARTICLE_MODEL = "claude-sonnet-4-6";
 const ARTICLE_INPUT_PER_M = 3.0;
@@ -115,9 +115,7 @@ Output a single JSON object, no prose, no fences:
 }`;
 
 function getClient(): Anthropic {
-  const key = getEnv("ANTHROPIC_API_KEY");
-  if (!key) throw new Error("ANTHROPIC_API_KEY env var is required.");
-  return new Anthropic({ apiKey: key });
+  return createLLMClient();
 }
 
 /**
@@ -481,7 +479,7 @@ export async function generateArticle(
   parts.push("\nWrite the article and call the publish_article tool with the result.");
 
   const resp = await getClient().messages.create({
-    model: ARTICLE_MODEL,
+    model: resolveModel(ARTICLE_MODEL),
     max_tokens: 8000,
     system: [
       { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
@@ -596,7 +594,7 @@ export async function suggestKeywords(
   parts.push("Return only the JSON object.");
 
   const resp = await getClient().messages.create({
-    model: KEYWORD_MODEL,
+    model: resolveModel(KEYWORD_MODEL),
     max_tokens: 2500,
     system: KEYWORD_SYSTEM,
     messages: [{ role: "user", content: parts.join("\n") }],

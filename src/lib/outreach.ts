@@ -11,7 +11,7 @@
  * draft and copy-paste send from your own mailbox. (Auto-send needs a
  * warmed-up domain + custom EMAIL_FROM; we skip that complexity here.)
  */
-import Anthropic from "@anthropic-ai/sdk";
+import { createLLMClient, resolveModel } from "@/lib/llmClient";
 
 const ENDPOINT = "https://serpapi.com/search.json";
 
@@ -140,7 +140,7 @@ export async function scoreProspects(
 ): Promise<{ candidates: ProspectCandidate[]; costUsd: number }> {
   if (raw.length === 0) return { candidates: [], costUsd: 0 };
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const client = createLLMClient();
 
   const SCORE_TOOL = {
     name: "rank_prospects",
@@ -192,7 +192,7 @@ ${raw
   .join("\n\n")}`;
 
   const resp = await client.messages.create({
-    model: MODEL_SCORE,
+    model: resolveModel(MODEL_SCORE),
     max_tokens: 2500,
     tools: [SCORE_TOOL],
     tool_choice: { type: "tool", name: "rank_prospects" },
@@ -240,7 +240,7 @@ export async function draftOutreachEmail({
   article: { title: string; url: string; metaDescription: string };
   site: { name: string; niche?: string | null; expertVoice?: string | null };
 }): Promise<{ subject: string; body: string; costUsd: number }> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const client = createLLMClient();
 
   const EMAIL_TOOL = {
     name: "write_email",
@@ -288,7 +288,7 @@ Rules:
 - Call the write_email tool with the result.`;
 
   const resp = await client.messages.create({
-    model: MODEL_EMAIL,
+    model: resolveModel(MODEL_EMAIL),
     max_tokens: 1500,
     tools: [EMAIL_TOOL],
     tool_choice: { type: "tool", name: "write_email" },

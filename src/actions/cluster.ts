@@ -1,10 +1,9 @@
 "use server";
 
-import Anthropic from "@anthropic-ai/sdk";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getEnv } from "@/lib/envFallback";
+import { createLLMClient, resolveModel } from "@/lib/llmClient";
 
 export type ClusterArticle = {
   title: string;
@@ -40,8 +39,7 @@ export async function generateClusterAction(formData: FormData): Promise<{
   const site = await prisma.site.findUnique({ where: { id: siteId } });
   if (!site) return { ok: false, error: "site not found" };
 
-  const anthKey = getEnv("ANTHROPIC_API_KEY");
-  const client = new Anthropic({ apiKey: anthKey });
+  const client = createLLMClient();
 
   const SYSTEM = `You are an SEO content strategist who designs topic clusters that rank.
 
@@ -112,14 +110,9 @@ Return 1 pillar + 10-12 cluster articles. Call the cluster_plan tool.`;
   const t0 = Date.now();
   console.log(`${tag} ▶ planning cluster · pillar="${pillarTopic}"`);
 
-  if (!anthKey) {
-    console.error(`${tag} ✗ ANTHROPIC_API_KEY missing in env`);
-    return { ok: false, error: "ANTHROPIC_API_KEY not set. Add it to .env" };
-  }
-
   try {
     const resp = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: resolveModel("claude-sonnet-4-5"),
       max_tokens: 3500,
       system: SYSTEM,
       tools: [TOOL],

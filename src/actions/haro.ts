@@ -1,9 +1,8 @@
 "use server";
 
-import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getEnv } from "@/lib/envFallback";
+import { createLLMClient, resolveModel } from "@/lib/llmClient";
 
 /**
  * HARO / source-request response drafter. The user pastes a journalist's
@@ -31,7 +30,7 @@ export async function draftHaroResponseAction(formData: FormData): Promise<{
   const site = await prisma.site.findUnique({ where: { id: siteId } });
   if (!site) return { ok: false, error: "site not found" };
 
-  const client = new Anthropic({ apiKey: getEnv("ANTHROPIC_API_KEY") });
+  const client = createLLMClient();
   const SYSTEM = `You draft responses to journalist source requests (HARO, Connectively, Featured.com, etc).
 Your goal: get the user quoted. Reporters reject responses that are generic, over-promotional, or longer than 200 words.
 
@@ -77,7 +76,7 @@ Draft a response now via the haro_draft tool.`;
 
   try {
     const resp = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: resolveModel("claude-sonnet-4-5"),
       max_tokens: 1200,
       system: SYSTEM,
       tools: [TOOL],

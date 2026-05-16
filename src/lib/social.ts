@@ -3,8 +3,8 @@
  * to X and Reddit. Credentials come from env vars — they're per-account, not
  * per-site. Disabled silently if creds aren't set.
  */
-import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/db";
+import { createLLMClient, resolveModel } from "@/lib/llmClient";
 
 const MODEL = "claude-haiku-4-5-20251001";
 
@@ -27,7 +27,7 @@ function envSet(...keys: string[]): boolean {
 }
 
 async function generatePosts(article: ArticleRecord): Promise<Posts> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const client = createLLMClient();
   const prompt = `Article title: ${article.title}
 Article URL: ${article.wpUrl}
 Meta description: ${article.metaDescription}
@@ -40,7 +40,7 @@ Write social posts that drive clicks WITHOUT looking like spam. Return JSON only
   "reddit_body": "2-3 sentences of genuine context, then the URL on a new line"
 }`;
   const resp = await client.messages.create({
-    model: MODEL,
+    model: resolveModel(MODEL),
     max_tokens: 1000,
     messages: [{ role: "user", content: prompt }],
   });
