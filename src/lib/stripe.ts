@@ -89,11 +89,12 @@ export function planFromPriceId(priceId: string): PlanId | null {
   return null;
 }
 
-/** Per-plan trial fee in dollars — used for ad pixel value attribution. */
+/** Per-plan trial fee in dollars — used for ad pixel value attribution.
+ *  TEST MODE: temporarily set to $1 across the board. Revert to 5/5/9. */
 export const TRIAL_FEE_USD: Record<PlanId, number> = {
-  hobby: 5,
-  operator: 5,
-  agency: 9,
+  hobby: 1,
+  operator: 1,
+  agency: 1,
 };
 
 export function appUrl(): string {

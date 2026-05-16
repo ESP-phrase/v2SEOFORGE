@@ -25,11 +25,11 @@ const TIERS: Tier[] = [
   {
     name: "Hobby",
     tagline: "For a single niche site or weekend project.",
-    trialFee: 5,
+    trialFee: 1,
     priceMo: 14.99,
     priceYr: 12,        // ~20% off, billed $144/yr
     accent: false,
-    cta: "Start $5 trial",
+    cta: "Start $1 trial",
     articles: "10 articles / mo",
     sites: "1 site",
     features: [
@@ -44,11 +44,11 @@ const TIERS: Tier[] = [
   {
     name: "Operator",
     tagline: "Run a portfolio of niche sites on autopilot.",
-    trialFee: 5,
+    trialFee: 1,
     priceMo: 29,
     priceYr: 23,
     accent: true,
-    cta: "Start $5 trial",
+    cta: "Start $1 trial",
     articles: "150 articles / mo",
     sites: "Up to 10 sites",
     features: [
@@ -65,11 +65,11 @@ const TIERS: Tier[] = [
   {
     name: "Agency",
     tagline: "Manage client sites with usage-based caps.",
-    trialFee: 9,
+    trialFee: 1,
     priceMo: 149,
     priceYr: 119,
     accent: false,
-    cta: "Start $9 trial",
+    cta: "Start $1 trial",
     articles: "1,000 articles / mo",
     sites: "Unlimited sites",
     features: [

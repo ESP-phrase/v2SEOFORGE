@@ -51,7 +51,7 @@ export function MarketingHeader() {
           >
             Sign in
           </Link>
-          <LinkButton href="/pricing">Start $5 trial</LinkButton>
+          <LinkButton href="/pricing">Start $1 trial</LinkButton>
         </div>
       </div>
     </header>

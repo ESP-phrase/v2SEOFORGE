@@ -44,7 +44,7 @@ export default async function LandingPage() {
           </p>
           <div className="flex gap-3 mt-7 flex-wrap">
             <LinkButton href="/pricing" size="lg">
-              Start $5 trial →
+              Start $1 trial →
             </LinkButton>
             <LinkButton href="#features" variant="secondary" size="lg">
               See how it works
