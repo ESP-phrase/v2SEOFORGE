@@ -18,7 +18,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getEnv } from "@/lib/envFallback";
 
-const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+// The Anthropic SDK appends "/v1/messages" to baseURL, so we point at /api
+// (not /api/v1) — final URL becomes https://openrouter.ai/api/v1/messages.
+const OPENROUTER_BASE_URL = "https://openrouter.ai/api";
 
 function isOpenRouter(): boolean {
   return getEnv("LLM_PROVIDER").toLowerCase() === "openrouter";
