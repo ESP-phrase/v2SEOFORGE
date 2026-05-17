@@ -171,9 +171,19 @@ export async function GET() {
   let stripeSubs: StripeSub[] = [];
   let stripeErr: string | null = null;
   if (isStripeConfigured()) {
-    try {
-      const cs = await stripe.checkout.sessions.list({ limit: 25 });
-      stripeCheckouts = cs.data.map((s) => ({
+    // Per-request retry/timeout overrides: the global lib/stripe.ts uses
+    // maxNetworkRetries:5 + timeout:20000 to make checkout creation as
+    // reliable as possible. For an admin dashboard that polls every 5s,
+    // that's way too much budget — one stalled call blocks the entire
+    // poll cycle. Tighter budget here: 1 retry, 6s timeout per call.
+    // Both calls run in parallel so a slow one doesn't stack on the other.
+    const reqOpts = { maxNetworkRetries: 1, timeout: 6000 } as const;
+    const [csR, subR] = await Promise.allSettled([
+      stripe.checkout.sessions.list({ limit: 25 }, reqOpts),
+      stripe.subscriptions.list({ limit: 25, status: "all" }, reqOpts),
+    ]);
+    if (csR.status === "fulfilled") {
+      stripeCheckouts = csR.value.data.map((s) => ({
         id: s.id,
         amount: s.amount_total ?? null,
         currency: s.currency ?? null,
@@ -183,10 +193,12 @@ export async function GET() {
         created: s.created * 1000,
         metadata_plan: (s.metadata?.plan as string | undefined) ?? null,
       }));
-    } catch (e) { stripeErr = e instanceof Error ? e.message : String(e); }
-    try {
-      const subs = await stripe.subscriptions.list({ limit: 25, status: "all" });
-      stripeSubs = subs.data.map((s) => ({
+    } else {
+      const m = csR.reason instanceof Error ? csR.reason.message : String(csR.reason);
+      stripeErr = `checkouts: ${m}`;
+    }
+    if (subR.status === "fulfilled") {
+      stripeSubs = subR.value.data.map((s) => ({
         id: s.id,
         status: s.status,
         customer: typeof s.customer === "string" ? s.customer : s.customer.id,
@@ -196,7 +208,10 @@ export async function GET() {
         trial_end: s.trial_end ? s.trial_end * 1000 : null,
         cancel_at_period_end: s.cancel_at_period_end,
       }));
-    } catch (e) { stripeErr = (stripeErr ? stripeErr + " | " : "") + (e instanceof Error ? e.message : String(e)); }
+    } else {
+      const m = subR.reason instanceof Error ? subR.reason.message : String(subR.reason);
+      stripeErr = (stripeErr ? stripeErr + " | " : "") + `subs: ${m}`;
+    }
   } else {
     stripeErr = "STRIPE_SECRET_KEY or STRIPE_WEBHOOK_SECRET not set";
   }
