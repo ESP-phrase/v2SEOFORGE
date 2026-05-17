@@ -142,11 +142,14 @@ export default function PricingPageClient() {
       <main className="max-w-[1200px] mx-auto px-6 md:px-10 py-12 md:py-16">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
+          <div className="inline-flex items-center gap-1.5 bg-accent-dim text-accent border border-accent-border rounded-full px-3 py-1 text-[0.7rem] uppercase tracking-wider font-bold mb-4">
+            Starts at $1 today
+          </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            3-day trial, then your plan. <span className="text-accent">No surprises.</span>
+            Pick your plan. <span className="text-accent">Start in 30 seconds.</span>
           </h1>
           <p className="text-muted text-base mt-3">
-            Small upfront fee to prevent abuse · Cancel anytime before day 3.
+            3-day trial · cancel anytime before day 3 · monthly billing starts after.
           </p>
           <Suspense fallback={null}>
             <PricingErrorBanner />
