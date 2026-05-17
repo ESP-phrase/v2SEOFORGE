@@ -54,7 +54,7 @@ export function TopBar({ username, isAdmin }: { username?: string; isAdmin?: boo
   const initial = (username ?? "A").trim().charAt(0).toUpperCase() || "A";
 
   return (
-    <div className="relative bg-black border border-border rounded-2xl shadow-[0_0_60px_-20px_rgba(190,248,72,0.4)]">
+    <div className="relative bg-black rounded-2xl shadow-[0_0_60px_-20px_rgba(190,248,72,0.4)]">
       <div className="px-3 md:px-4 py-2 flex items-center gap-2">
         {/* Logo */}
         <Link
