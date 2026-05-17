@@ -5,31 +5,50 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { stripe, priceIdFor, trialFeePriceIdFor, TRIAL_FEE_USD, appUrl, isStripeConfigured, type PlanId, type Cadence } from "@/lib/stripe";
 
+function maskEmail(e?: string | null): string {
+  if (!e) return "(none)";
+  const [u, d] = e.split("@");
+  if (!d) return e;
+  return `${u.slice(0, 2)}***@${d}`;
+}
+
 export async function startCheckoutAction(formData: FormData): Promise<void> {
+  const t0 = Date.now();
+  const reqId = Math.random().toString(36).slice(2, 8);
   const plan = String(formData.get("plan") ?? "") as PlanId;
   const cadence = String(formData.get("cadence") ?? "monthly") as Cadence;
+  console.log(`[checkout ${reqId}] start plan=${plan} cadence=${cadence}`);
 
   if (!isStripeConfigured()) {
+    console.error(`[checkout ${reqId}] aborted: Stripe not configured`);
     redirect("/billing?error=" + encodeURIComponent("Stripe not configured. Set STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET."));
   }
   const session = await auth();
   if (!session?.user?.id) {
+    console.log(`[checkout ${reqId}] no session, redirecting to /login`);
     redirect(`/login?next=${encodeURIComponent(`/pricing?plan=${plan}&cadence=${cadence}`)}`);
   }
   const userId = session.user.id;
   const email = session.user.email;
+  console.log(`[checkout ${reqId}] authed user=${userId} email=${maskEmail(email)}`);
 
   const priceId = priceIdFor(plan, cadence);
   if (!priceId) {
+    console.error(`[checkout ${reqId}] no priceId for plan=${plan} cadence=${cadence}`);
     redirect("/pricing?error=" + encodeURIComponent("That plan price is not configured."));
   }
   const trialFeePriceId = trialFeePriceIdFor(plan);
   if (!trialFeePriceId) {
+    console.error(`[checkout ${reqId}] no trial fee priceId for plan=${plan}`);
     redirect("/pricing?error=" + encodeURIComponent("Trial fee price is not configured."));
   }
+  console.log(`[checkout ${reqId}] resolved prices trial=${trialFeePriceId} recurring=${priceId}`);
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) redirect("/login");
+  if (!user) {
+    console.error(`[checkout ${reqId}] user not found in DB (session stale?)`);
+    redirect("/login");
+  }
 
   // All Stripe API calls below are wrapped in a single try/catch so any
   // configuration failure (missing/invalid price IDs, key mismatch between
@@ -45,18 +64,25 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
     // Reuse existing customer if present, else create one.
     let customerId = user.stripeCustomerId;
     if (!customerId) {
+      console.log(`[checkout ${reqId}] creating Stripe customer…`);
+      const tc = Date.now();
       const c = await stripe.customers.create({
         email: email ?? undefined,
         metadata: { userId },
       });
       customerId = c.id;
       await prisma.user.update({ where: { id: userId }, data: { stripeCustomerId: customerId } });
+      console.log(`[checkout ${reqId}] customer created id=${customerId} in ${Date.now() - tc}ms`);
+    } else {
+      console.log(`[checkout ${reqId}] reusing customer id=${customerId}`);
     }
 
     // Two-line checkout: (1) one-time trial fee charged immediately, (2) the
     // recurring subscription price on a 14-day free trial — so the next
     // charge after the trial fee lands 14 days later at the full monthly
     // rate. Stripe Checkout handles both line items in one session.
+    console.log(`[checkout ${reqId}] creating Stripe checkout session…`);
+    const ts = Date.now();
     const checkout = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
@@ -75,7 +101,8 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
       metadata: { userId, plan },
     });
     checkoutUrl = checkout.url;
-    checkoutId = checkoutId;
+    checkoutId = checkout.id;
+    console.log(`[checkout ${reqId}] session created id=${checkoutId} in ${Date.now() - ts}ms`);
   } catch (e) {
     if (
       e && typeof e === "object" && "digest" in e &&
@@ -85,7 +112,7 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
       throw e;
     }
     const raw = e instanceof Error ? e.message : String(e);
-    console.error("[billing] startCheckoutAction failed:", { plan, cadence, error: raw });
+    console.error(`[checkout ${reqId}] FAILED after ${Date.now() - t0}ms: ${raw}`);
     const friendly =
       raw.includes("No such price") || raw.includes("Invalid API Key")
         ? "Checkout is misconfigured — our team has been notified. Please try again shortly."
@@ -94,6 +121,7 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   }
 
   if (!checkoutUrl || !checkoutId) {
+    console.error(`[checkout ${reqId}] session has no url/id (url=${!!checkoutUrl} id=${!!checkoutId})`);
     redirect("/pricing?error=" + encodeURIComponent("Stripe session could not be created."));
   }
 
@@ -146,10 +174,12 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
         itemCount: 1, conversionId: checkoutId,
       }),
     ]);
-  } catch {
+  } catch (e) {
     /* never block checkout on tracking */
+    console.warn(`[checkout ${reqId}] pixel events partially failed: ${e instanceof Error ? e.message : String(e)}`);
   }
 
+  console.log(`[checkout ${reqId}] redirecting to Stripe (${Date.now() - t0}ms total) → ${checkoutUrl.slice(0, 60)}…`);
   redirect(checkoutUrl);
 }
 

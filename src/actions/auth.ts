@@ -42,9 +42,21 @@ function safeNext(formData: FormData): string {
   return raw;
 }
 
+function maskEmail(e?: string | null): string {
+  if (!e) return "(none)";
+  const [u, d] = e.split("@");
+  if (!d) return e;
+  return `${u.slice(0, 2)}***@${d}`;
+}
+
 export async function signUpAction(formData: FormData): Promise<void> {
+  const t0 = Date.now();
+  const reqId = Math.random().toString(36).slice(2, 8);
+  const next = safeNext(formData);
   const creds = parseCredentials(formData);
+  console.log(`[signup ${reqId}] start email=${maskEmail(creds?.email)} next=${next}`);
   if (!creds) {
+    console.log(`[signup ${reqId}] invalid creds, bouncing`);
     redirect(`/login?mode=signup&error=${encodeURIComponent("Enter a valid email and a password of at least 8 characters.")}`);
   }
   const { prisma } = await import("@/lib/db");
@@ -52,6 +64,7 @@ export async function signUpAction(formData: FormData): Promise<void> {
 
   const existing = await prisma.user.findUnique({ where: { email: creds!.email } });
   if (existing) {
+    console.log(`[signup ${reqId}] duplicate email`);
     redirect(`/login?error=${encodeURIComponent("An account with that email already exists. Sign in instead.")}`);
   }
 
@@ -98,12 +111,18 @@ export async function signUpAction(formData: FormData): Promise<void> {
 
   await createSessionCookie(user.id);
   await prisma.user.update({ where: { id: user.id }, data: { lastLogin: new Date() } });
-  redirect(safeNext(formData));
+  console.log(`[signup ${reqId}] created user=${user.id} in ${Date.now() - t0}ms → redirect ${next}`);
+  redirect(next);
 }
 
 export async function signInWithPasswordAction(formData: FormData): Promise<void> {
+  const t0 = Date.now();
+  const reqId = Math.random().toString(36).slice(2, 8);
+  const next = safeNext(formData);
   const creds = parseCredentials(formData);
+  console.log(`[signin ${reqId}] start email=${maskEmail(creds?.email)} next=${next}`);
   if (!creds) {
+    console.log(`[signin ${reqId}] invalid creds`);
     redirect(`/login?error=${encodeURIComponent("Enter your email and password.")}`);
   }
   const { prisma } = await import("@/lib/db");
@@ -111,16 +130,19 @@ export async function signInWithPasswordAction(formData: FormData): Promise<void
 
   const user = await prisma.user.findUnique({ where: { email: creds!.email } });
   if (!user || !user.passwordHash) {
+    console.log(`[signin ${reqId}] no user or no passwordHash`);
     redirect(`/login?error=${encodeURIComponent("Invalid email or password.")}`);
   }
   const ok = await bcrypt.compare(creds!.password, user!.passwordHash!);
   if (!ok) {
+    console.log(`[signin ${reqId}] bad password user=${user!.id}`);
     redirect(`/login?error=${encodeURIComponent("Invalid email or password.")}`);
   }
 
   await createSessionCookie(user!.id);
   await prisma.user.update({ where: { id: user!.id }, data: { lastLogin: new Date() } });
-  redirect(safeNext(formData));
+  console.log(`[signin ${reqId}] success user=${user!.id} in ${Date.now() - t0}ms → redirect ${next}`);
+  redirect(next);
 }
 
 export async function signOutAction(): Promise<void> {

@@ -243,6 +243,7 @@ export default function PricingPage() {
                 <form
                   action={startCheckoutAction}
                   onSubmit={() => {
+                    console.log(`[pricing] Start trial click plan=${t.name.toLowerCase()} cadence=${annual ? "annual" : "monthly"}`);
                     // Browser-pixel mid-funnel events. Value reports the
                     // immediate cash collected (trial fee) so attribution
                     // matches what Stripe actually charges today.
