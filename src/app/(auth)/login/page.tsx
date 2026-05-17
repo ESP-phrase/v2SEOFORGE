@@ -10,10 +10,13 @@ import { isGitHubAuthConfigured } from "@/lib/auth";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; mode?: string }>;
+  searchParams: Promise<{ error?: string; mode?: string; next?: string }>;
 }) {
-  const { error, mode } = await searchParams;
+  const { error, mode, next } = await searchParams;
   const isSignup = mode === "signup";
+  // Only forward same-origin paths to defeat open-redirect abuse via ?next=
+  const nextPath = next && next.startsWith("/") && !next.startsWith("//") ? next : "";
+  const nextQs = nextPath ? `&next=${encodeURIComponent(nextPath)}` : "";
 
   return (
     <>
@@ -67,7 +70,7 @@ export default async function LoginPage({
           {/* Mode toggle */}
           <div className="grid grid-cols-2 gap-1 p-1 mb-6 bg-bg border border-border rounded-xl text-sm font-bold">
             <Link
-              href="/login"
+              href={`/login${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
               className={`text-center py-2 rounded-lg transition-colors no-underline ${
                 !isSignup ? "bg-accent text-black" : "text-muted hover:text-text"
               }`}
@@ -75,7 +78,7 @@ export default async function LoginPage({
               Sign in
             </Link>
             <Link
-              href="/login?mode=signup"
+              href={`/login?mode=signup${nextQs}`}
               className={`text-center py-2 rounded-lg transition-colors no-underline ${
                 isSignup ? "bg-accent text-black" : "text-muted hover:text-text"
               }`}
@@ -132,6 +135,7 @@ export default async function LoginPage({
 
           {/* Email + password form */}
           <form action={isSignup ? signUpAction : signInWithPasswordAction} className="space-y-3">
+            {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
             <div className="relative">
               <svg
                 width="18"

@@ -30,6 +30,18 @@ function parseCredentials(formData: FormData): { email: string; password: string
   return { email, password };
 }
 
+/**
+ * Pull a safe ?next= target from the form. We only allow same-origin relative
+ * paths so a malicious ?next=https://evil/ can't be used to redirect victims
+ * after they sign in. Defaults to /dashboard.
+ */
+function safeNext(formData: FormData): string {
+  const raw = String(formData.get("next") ?? "").trim();
+  if (!raw) return "/dashboard";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/dashboard";
+  return raw;
+}
+
 export async function signUpAction(formData: FormData): Promise<void> {
   const creds = parseCredentials(formData);
   if (!creds) {
@@ -86,7 +98,7 @@ export async function signUpAction(formData: FormData): Promise<void> {
 
   await createSessionCookie(user.id);
   await prisma.user.update({ where: { id: user.id }, data: { lastLogin: new Date() } });
-  redirect("/dashboard");
+  redirect(safeNext(formData));
 }
 
 export async function signInWithPasswordAction(formData: FormData): Promise<void> {
@@ -108,7 +120,7 @@ export async function signInWithPasswordAction(formData: FormData): Promise<void
 
   await createSessionCookie(user!.id);
   await prisma.user.update({ where: { id: user!.id }, data: { lastLogin: new Date() } });
-  redirect("/dashboard");
+  redirect(safeNext(formData));
 }
 
 export async function signOutAction(): Promise<void> {

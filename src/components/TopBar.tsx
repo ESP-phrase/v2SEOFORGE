@@ -15,7 +15,7 @@ const NAV: { href: string; label: string; icon: () => React.ReactNode }[] = [
   { href: "/pricing",   label: "Pricing",   icon: () => <TagIcon /> },
 ];
 
-export function TopBar({ username }: { username?: string }) {
+export function TopBar({ username, isAdmin }: { username?: string; isAdmin?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -118,6 +118,23 @@ export function TopBar({ username }: { username?: string }) {
 
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2 shrink-0">
+          {isAdmin ? (
+            <Link
+              href="/admin/live"
+              title="Mission Control — live traffic & checkout funnel"
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[0.78rem] font-semibold no-underline transition-colors ${
+                pathname?.startsWith("/admin")
+                  ? "text-accent bg-accent/10 shadow-[inset_0_0_0_1px_rgba(190,248,72,0.35)]"
+                  : "text-muted hover:text-text hover:bg-white/[0.04]"
+              }`}
+            >
+              <span className="relative flex w-1.5 h-1.5" aria-hidden>
+                <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-75" />
+                <span className="relative w-1.5 h-1.5 rounded-full bg-accent" />
+              </span>
+              Live
+            </Link>
+          ) : null}
           {username ? (
             <>
               <Link
