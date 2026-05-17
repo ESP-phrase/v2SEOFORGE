@@ -105,13 +105,7 @@ const ORG_SCHEMA = {
       offers: [
         {
           "@type": "Offer",
-          name: "Hobby",
-          price: "0",
-          priceCurrency: "USD",
-        },
-        {
-          "@type": "Offer",
-          name: "Operator",
+          name: "Creator",
           price: "29",
           priceCurrency: "USD",
           priceSpecification: {
@@ -123,12 +117,24 @@ const ORG_SCHEMA = {
         },
         {
           "@type": "Offer",
-          name: "Agency",
-          price: "149",
+          name: "Operator",
+          price: "79",
           priceCurrency: "USD",
           priceSpecification: {
             "@type": "UnitPriceSpecification",
-            price: "149",
+            price: "79",
+            priceCurrency: "USD",
+            referenceQuantity: { "@type": "QuantitativeValue", value: "1", unitCode: "MON" },
+          },
+        },
+        {
+          "@type": "Offer",
+          name: "Agency",
+          price: "199",
+          priceCurrency: "USD",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "199",
             priceCurrency: "USD",
             referenceQuantity: { "@type": "QuantitativeValue", value: "1", unitCode: "MON" },
           },

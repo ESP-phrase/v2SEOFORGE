@@ -279,51 +279,55 @@ export default async function LandingPage() {
             Pricing
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-            Start free. Scale when you&rsquo;re ready.
+            14 days free. <span className="text-accent">Scale when you&rsquo;re ready.</span>
           </h2>
+          <p className="text-muted text-base mt-3">
+            $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1100px] mx-auto">
           {[
             {
-              name: "Hobby",
-              price: "$0",
-              cadence: "forever",
-              blurb: "Run a single niche site or weekend project.",
+              name: "Creator",
+              price: "$29",
+              cadence: "/ month",
+              blurb: "For solo operators and a few niche sites.",
               features: [
-                "1 site",
-                "10 articles / month",
+                "3 sites",
+                "75 articles / month",
                 "AI keyword research",
                 "WordPress auto-publish",
+                "Overage $0.45 / article",
               ],
-              cta: "Start Free",
+              cta: "Start 14-day trial",
               featured: false,
             },
             {
               name: "Operator",
-              price: "$29",
+              price: "$79",
               cadence: "/ month",
-              blurb: "Run a portfolio of niche sites on autopilot.",
+              blurb: "Run a real portfolio on autopilot.",
               features: [
-                "Up to 10 sites",
-                "150 articles / month",
+                "15 sites",
+                "250 articles / month",
                 "Daily cron auto-publish",
-                "Self-hosted analytics",
-                "Backlink outreach",
+                "Backlink outreach + analytics",
+                "Overage $0.30 / article",
               ],
               cta: "Start 14-day trial",
               featured: true,
             },
             {
               name: "Agency",
-              price: "$149",
+              price: "$199",
               cadence: "/ month",
-              blurb: "Manage client sites with usage-based caps.",
+              blurb: "Power users, agencies, white-label clients.",
               features: [
                 "Unlimited sites",
                 "1,000 articles / month",
-                "Search Console integration",
-                "Team seats (up to 5)",
-                "Slack support · 4h",
+                "White-label client reports",
+                "Team seats + API access",
+                "Overage $0.15 / article",
               ],
               cta: "Start 14-day trial",
               featured: false,
@@ -360,7 +364,7 @@ export default async function LandingPage() {
               </ul>
               <div className="mt-7">
                 <LinkButton
-                  href={p.price === "$0" ? "/login" : "/pricing"}
+                  href="/pricing"
                   variant={p.featured ? "primary" : "secondary"}
                   full
                 >

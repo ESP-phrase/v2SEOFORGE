@@ -58,9 +58,13 @@ export const stripe = new Proxy({} as Stripe, {
 export type PlanId = "hobby" | "operator" | "agency";
 export type Cadence = "monthly" | "annual";
 
+// Internal slugs kept as hobby/operator/agency for code/env-var/DB stability;
+// the user-facing names are Creator/Operator/Agency in the pricing page UI.
+// Article quotas updated for the v2 pricing stack (Creator 75, Operator 250,
+// Agency 1000) — paired with the new live Stripe prices ($29/$79/$199).
 export const PLAN_CREDITS: Record<PlanId, number> = {
-  hobby: 10,
-  operator: 150,
+  hobby: 75,
+  operator: 250,
   agency: 1000,
 };
 

@@ -23,63 +23,64 @@ type Tier = {
 
 const TIERS: Tier[] = [
   {
-    name: "Hobby",
-    tagline: "For a single niche site or weekend project.",
+    name: "Creator",
+    tagline: "For solo operators and a few niche sites.",
     trialFee: 1,
-    priceMo: 14.99,
-    priceYr: 12,        // ~20% off, billed $144/yr
+    priceMo: 29,
+    priceYr: 23,        // $276/yr → $23/mo equivalent (~20% off)
     accent: false,
-    cta: "Start $1 trial",
-    articles: "10 articles / mo",
-    sites: "1 site",
+    cta: "Start 14-day trial",
+    articles: "75 articles / mo",
+    sites: "3 sites",
     features: [
       "AI keyword research",
       "Claude-powered article generation",
       "Quality gates + drafts review",
       "WordPress auto-publish",
       "Activity log + cost tracking",
-      "Hosted Claude — no API key needed",
+      "Overage $0.45 / article",
     ],
   },
   {
     name: "Operator",
-    tagline: "Run a portfolio of niche sites on autopilot.",
+    tagline: "Run a real portfolio on autopilot.",
     trialFee: 1,
-    priceMo: 27,
-    priceYr: 21,
+    priceMo: 79,
+    priceYr: 63,        // $756/yr → $63/mo equivalent (~20% off)
     accent: true,
-    cta: "Start $1 trial",
-    articles: "150 articles / mo",
-    sites: "Up to 10 sites",
+    cta: "Start 14-day trial",
+    articles: "250 articles / mo",
+    sites: "15 sites",
     features: [
-      "Everything in Hobby",
+      "Everything in Creator",
       "Daily cron auto-publish",
       "SERP & entity research",
       "Backlink outreach workflow",
       "Internal-link graph",
       "Self-hosted page-view analytics",
       "Email support · 24h",
+      "Overage $0.30 / article",
     ],
   },
   {
     name: "Agency",
-    tagline: "Manage client sites with usage-based caps.",
+    tagline: "Power users, agencies, white-label clients.",
     trialFee: 1,
-    priceMo: 149,
-    priceYr: 119,
+    priceMo: 199,
+    priceYr: 159,       // $1908/yr → $159/mo equivalent (~20% off)
     accent: false,
-    cta: "Start $1 trial",
+    cta: "Start 14-day trial",
     articles: "1,000 articles / mo",
     sites: "Unlimited sites",
     features: [
       "Everything in Operator",
       "Google Search Console integration",
-      "Per-site daily caps & schedules",
       "White-label client reports",
       "Team seats (up to 5)",
       "Priority Claude capacity",
+      "API access",
       "Slack support · 4h",
-      "Onboarding call + SEO audit",
+      "Overage $0.15 / article",
     ],
   },
 ];
@@ -100,7 +101,7 @@ const COMPARE: { label: string; values: (string | boolean)[] }[] = [
 const FAQ = [
   {
     q: "Do I bring my own AI keys, or is it included?",
-    a: "Hobby uses your own Anthropic API key (transparent costs, ~$0.30–$0.80 per article). Operator and Agency include managed Claude capacity with priority access — no API key needed.",
+    a: "All paid plans include managed Claude capacity — no API key needed. We absorb the cost of generation as part of your plan.",
   },
   {
     q: "What counts as an “article”?",
@@ -108,7 +109,11 @@ const FAQ = [
   },
   {
     q: "Can I exceed my monthly cap?",
-    a: "Yes — overage is $0.20/article on Operator and $0.10/article on Agency. We notify at 80% so nothing catches you by surprise.",
+    a: "Yes — overage is $0.45/article on Creator, $0.30/article on Operator, $0.15/article on Agency. We notify at 80% so nothing catches you by surprise.",
+  },
+  {
+    q: "What's the $1 hold?",
+    a: "When you start a trial we authorize $1 on your card to prevent abuse from bots and throwaway accounts. It's released automatically — no actual charge for 14 days. Cancel before day 14 and you're never billed.",
   },
   {
     q: "Is the content actually good, or is it generic AI slop?",
@@ -138,10 +143,10 @@ export default function PricingPage() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Pay for <span className="text-accent">results, not seats.</span>
+            Start free for 14 days. <span className="text-accent">No risk.</span>
           </h1>
           <p className="text-muted text-base mt-3">
-            Pick your plan. 14-day paid trial · Cancel anytime.
+            $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
           </p>
           <Suspense fallback={null}>
             <PricingErrorBanner />

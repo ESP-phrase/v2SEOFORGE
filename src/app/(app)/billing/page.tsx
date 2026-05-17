@@ -10,8 +10,10 @@ import { PurchaseConversion } from "@/components/PurchaseConversion";
 
 export const dynamic = "force-dynamic";
 
+// Internal slugs kept (DB has these values); user-facing labels updated for
+// the v2 pricing stack (Creator/Operator/Agency, no free Hobby tier).
 const PLAN_LABEL: Record<string, string> = {
-  hobby: "Hobby (Free)",
+  hobby: "Creator",
   operator: "Operator",
   agency: "Agency",
 };
@@ -34,7 +36,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     <>
       <PageHeader
         title="Billing & usage"
-        subtitle={user.plan === "hobby" ? "You're on the free Hobby plan." : `${PLAN_LABEL[user.plan] ?? user.plan} · renews ${renews ?? "—"}`}
+        subtitle={user.plan === "hobby" ? "You're on the Creator plan." : `${PLAN_LABEL[user.plan] ?? user.plan} · renews ${renews ?? "—"}`}
       />
 
       {sp.status === "success" ? (
@@ -120,10 +122,10 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           operator: {
             slug: "operator",
             name: "Operator",
-            price: "$29/mo",
-            articles: "150 articles/mo",
+            price: "$79/mo",
+            articles: "250 articles/mo",
             features: [
-              "Up to 10 sites",
+              "15 sites",
               "Daily cron auto-publish",
               "Backlink outreach + HARO",
               "Self-hosted analytics",
@@ -132,12 +134,12 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           agency: {
             slug: "agency",
             name: "Agency",
-            price: "$149/mo",
+            price: "$199/mo",
             articles: "1,000 articles/mo",
             features: [
               "Unlimited sites",
               "Google Search Console integration",
-              "Team seats (up to 5)",
+              "Team seats + API access",
               "Slack support · 4h SLA",
             ],
           },
@@ -278,7 +280,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         ) : (
           <div>
             <p className="text-muted text-sm mb-4">
-              You&apos;re on the free Hobby plan. Upgrade for more articles, multi-site support, and managed cron.
+              You&apos;re on the Creator plan. Upgrade to Operator or Agency for more articles, more sites, and priority support.
             </p>
             <Link
               href="/pricing"
