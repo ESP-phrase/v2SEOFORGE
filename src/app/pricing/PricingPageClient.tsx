@@ -148,7 +148,9 @@ export default function PricingPageClient() {
           <p className="text-muted text-base mt-3">
             $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
           </p>
-          <PricingErrorBanner />
+          <Suspense fallback={null}>
+            <PricingErrorBanner />
+          </Suspense>
         </div>
 
         {/* Billing toggle — true switch with sliding knob */}
