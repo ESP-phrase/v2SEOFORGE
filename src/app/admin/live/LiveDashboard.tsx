@@ -129,6 +129,48 @@ export function LiveDashboard() {
           <BigCounter label="Last 30 min"       value={data.active.min30} />
         </section>
 
+        {/* Live visitors — focused list: country → current page · ago */}
+        <section className="bg-card-grad border border-border rounded-2xl p-5">
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="font-bold flex items-center gap-2">
+              <span className="relative flex w-2 h-2">
+                <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-75" />
+                <span className="relative w-2 h-2 rounded-full bg-accent" />
+              </span>
+              Live right now
+            </h2>
+            <div className="text-muted-2 text-xs">last 5 minutes</div>
+          </div>
+          {data.sessions.filter((s) => data.now - s.lastSeen <= 5 * 60 * 1000).length === 0 ? (
+            <div className="text-muted text-sm">Nobody's on the site right now.</div>
+          ) : (
+            <ul className="divide-y divide-border/40">
+              {data.sessions
+                .filter((s) => data.now - s.lastSeen <= 5 * 60 * 1000)
+                .map((s) => {
+                  const currentPath = s.hops[0]?.path ?? "/";
+                  return (
+                    <li key={s.ipHash} className="flex items-center gap-3 py-2.5">
+                      <span className="text-xl shrink-0 w-7 text-center" title={s.country}>
+                        {countryFlag(s.country)}
+                      </span>
+                      <span className="text-[0.7rem] text-muted-2 font-mono uppercase w-7 shrink-0">
+                        {s.country}
+                      </span>
+                      <code className="flex-1 text-sm text-accent font-mono truncate">{currentPath}</code>
+                      <span className="text-[0.7rem] text-muted shrink-0">
+                        {s.pageCount > 1 ? `${s.pageCount} pages` : "1 page"}
+                      </span>
+                      <span className="text-[0.7rem] text-muted-2 shrink-0 w-12 text-right">
+                        {ago(data.now - s.lastSeen)} ago
+                      </span>
+                    </li>
+                  );
+                })}
+            </ul>
+          )}
+        </section>
+
         {/* 24h funnel */}
         <section className="bg-card-grad border border-border rounded-2xl p-5">
           <div className="flex items-baseline justify-between mb-3">
@@ -331,6 +373,17 @@ function BreakdownList({ rows }: { rows: [string, number][] }) {
         </div>
       ))}
     </div>
+  );
+}
+
+function countryFlag(code: string): string {
+  // Convert ISO-3166 2-letter country code to flag emoji via regional indicators.
+  // Returns a globe for unknown / "—".
+  if (!code || code.length !== 2 || /[^A-Za-z]/.test(code)) return "🌐";
+  const base = 0x1F1E6;
+  return String.fromCodePoint(
+    base + (code.toUpperCase().charCodeAt(0) - 65),
+    base + (code.toUpperCase().charCodeAt(1) - 65),
   );
 }
 
