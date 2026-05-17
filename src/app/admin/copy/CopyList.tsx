@@ -35,7 +35,17 @@ const SECTIONS: { title: string; lines: string[] }[] = [
     ],
   },
   {
-    title: "Destination URLs (TikTok ad sets)",
+    title: "Destination URLs — sales landings (match ad angle to landing)",
+    lines: [
+      "https://www.seoforge.org/start?utm_source=tiktok&utm_content=cold",
+      "https://www.seoforge.org/proof?utm_source=tiktok&utm_content=social_proof",
+      "https://www.seoforge.org/pain?utm_source=tiktok&utm_content=pain_aware",
+      "https://www.seoforge.org/workspace?utm_source=tiktok&utm_content=demo",
+      "https://www.seoforge.org/pricing?utm_source=tiktok&utm_content=direct",
+    ],
+  },
+  {
+    title: "Destination URLs — per ad-set tracking",
     lines: [
       "https://www.seoforge.org/pricing?utm_source=tiktok&utm_content=adset_1",
       "https://www.seoforge.org/pricing?utm_source=tiktok&utm_content=niche_affiliate",
