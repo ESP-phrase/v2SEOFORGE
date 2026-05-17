@@ -23,7 +23,7 @@ export function MarketingHeader() {
           black pill so it floats inside the viewport with glow accents on the
           right side. */}
       <div className="sticky top-0 z-40 px-3 md:px-6 pt-3 pb-2 bg-gradient-to-b from-bg via-bg/95 to-bg/0">
-        <header className="relative max-w-[1400px] mx-auto bg-black rounded-2xl shadow-[0_0_60px_-20px_rgba(190,248,72,0.4)]">
+        <header className="relative max-w-[1400px] mx-auto bg-black border border-border rounded-2xl shadow-[0_0_60px_-20px_rgba(190,248,72,0.4)]">
           <div className="px-3 md:px-4 py-2 flex items-center gap-2">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 font-extrabold no-underline shrink-0 px-1.5">
