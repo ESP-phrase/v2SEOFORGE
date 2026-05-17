@@ -78,6 +78,7 @@ export async function GET() {
     bucket: string;
     hops: Hop[];
     pageCount: number;
+    userEmail: string | null;
   };
   const sessMap = new Map<string, Sess>();
   // recent30 is newest-first; walk it once.
@@ -97,12 +98,15 @@ export async function GET() {
         bucket,
         hops: [],
         pageCount: 0,
+        userEmail: v.userEmail ?? null,
       };
       sessMap.set(ip, s);
     }
     s.firstSeen = Math.min(s.firstSeen, at);
     s.lastSeen = Math.max(s.lastSeen, at);
     s.pageCount += 1;
+    // Latest non-null email wins (in case they signed in mid-session).
+    if (!s.userEmail && v.userEmail) s.userEmail = v.userEmail;
     if (s.hops.length < 8) s.hops.push({ path, bucket, at });
   }
   const sessions = Array.from(sessMap.values()).sort((a, b) => b.lastSeen - a.lastSeen);

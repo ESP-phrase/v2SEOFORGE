@@ -12,6 +12,7 @@ type Sess = {
   bucket: string;
   hops: Hop[];
   pageCount: number;
+  userEmail: string | null;
 };
 type Checkout = {
   id: string;
@@ -154,10 +155,12 @@ export function LiveDashboard() {
                       <span className="text-xl shrink-0 w-7 text-center" title={s.country}>
                         {countryFlag(s.country)}
                       </span>
-                      <span className="text-[0.7rem] text-muted-2 font-mono uppercase w-7 shrink-0">
-                        {s.country}
+                      <span className="flex-1 min-w-0 flex flex-col">
+                        <span className="text-sm text-text font-semibold truncate">
+                          {s.userEmail ?? `Anonymous · ${s.country}`}
+                        </span>
+                        <code className="text-[0.7rem] text-accent font-mono truncate">{currentPath}</code>
                       </span>
-                      <code className="flex-1 text-sm text-accent font-mono truncate">{currentPath}</code>
                       <span className="text-[0.7rem] text-muted shrink-0">
                         {s.pageCount > 1 ? `${s.pageCount} pages` : "1 page"}
                       </span>
@@ -194,7 +197,7 @@ export function LiveDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-[0.65rem] text-muted-2 uppercase tracking-wider border-b border-border">
-                    <th className="text-left py-2 pr-3">Session</th>
+                    <th className="text-left py-2 pr-3">User</th>
                     <th className="text-left py-2 pr-3">Geo</th>
                     <th className="text-left py-2 pr-3">Referrer</th>
                     <th className="text-left py-2 pr-3">Current</th>
@@ -206,7 +209,9 @@ export function LiveDashboard() {
                 <tbody>
                   {data.sessions.map((s) => (
                     <tr key={s.ipHash} className="border-b border-border/40">
-                      <td className="py-2 pr-3 font-mono text-[0.65rem] text-muted-2">{s.ipHash.slice(0, 8)}</td>
+                      <td className="py-2 pr-3 text-[0.7rem]">
+                        {s.userEmail ?? <span className="text-muted-2 font-mono">anon · {s.ipHash.slice(0, 6)}</span>}
+                      </td>
                       <td className="py-2 pr-3 text-[0.7rem]">{s.country}</td>
                       <td className="py-2 pr-3 text-[0.7rem] text-muted truncate max-w-[140px]">{trimRef(s.referrer)}</td>
                       <td className="py-2 pr-3"><BucketPill bucket={s.bucket} /></td>

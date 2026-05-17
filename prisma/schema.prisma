@@ -278,10 +278,16 @@ model PageView {
   ua        String   @default("")
   ipHash    String   @default("") // sha256 of IP — for unique counts without storing IPs
   isBot     Boolean  @default(false)
+  // Set when the request carried an authed Auth.js session cookie. Lets
+  // /admin/live show actual user emails per live session instead of opaque
+  // ipHash fragments. Nullable — anonymous visitors are still tracked.
+  userId    String?
+  userEmail String?
   createdAt DateTime @default(now())
 
   @@index([siteId, createdAt])
   @@index([articleId, createdAt])
+  @@index([userId, createdAt])
 }
 
 model Run {

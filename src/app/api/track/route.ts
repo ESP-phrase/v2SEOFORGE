@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,14 +60,27 @@ export async function POST(req: NextRequest) {
     // Fast path: pings from our own marketing site (seoforge.org or a Vercel
     // preview URL) never resolve to a wp Site row, so skip the lookup and
     // write the row directly with siteId=null. /admin/live filters on
-    // siteId=null to count own-site visitors.
+    // siteId=null to count own-site visitors. If the request carries an
+    // authed Auth.js session cookie we also attach userId+userEmail so the
+    // admin dashboard can render real names per live session.
     const isOwnHost =
       host === "seoforge.org" ||
       host === "www.seoforge.org" ||
       host.endsWith(".vercel.app");
     if (isOwnHost) {
+      let userId: string | null = null;
+      let userEmail: string | null = null;
+      try {
+        const session = await auth();
+        if (session?.user?.id) {
+          userId = session.user.id;
+          userEmail = session.user.email ?? null;
+        }
+      } catch {
+        /* session resolution failed — treat as anonymous, never block tracking */
+      }
       await prisma.pageView.create({
-        data: { siteId: null, articleId: null, path, referrer, country, ua, ipHash, isBot },
+        data: { siteId: null, articleId: null, path, referrer, country, ua, ipHash, isBot, userId, userEmail },
       });
       return NextResponse.json({ ok: true }, { headers: CORS });
     }
