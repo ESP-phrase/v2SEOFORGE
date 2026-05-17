@@ -332,8 +332,11 @@ export default function PricingPageClient() {
           <p className="text-muted text-center mb-8">
             Everything you get on each plan, side by side.
           </p>
-          <div className="bg-card-grad border border-border rounded-2xl overflow-hidden">
-            <table className="w-full text-sm">
+          {/* Horizontal scroll wrapper so the 4-column table doesn't squish
+              into unreadable mush on phones. min-w[640px] keeps each column
+              wide enough to read; users swipe horizontally on mobile. */}
+          <div className="bg-card-grad border border-border rounded-2xl overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-surface-2/30">
                   <th className="text-left py-4 px-5 text-muted text-xs uppercase tracking-wider font-bold">

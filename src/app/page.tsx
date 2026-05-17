@@ -89,10 +89,13 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-7 relative">
-          {/* Clarity recordings showed users rage-clicking this static
-              mockup expecting interactivity — wrap the whole thing in a Link
-              so any click drives to signup instead of going nowhere. */}
+        <div className="lg:col-span-7 relative hidden md:block">
+          {/* Hidden on mobile — the 148px sidebar + 520px min-height mockup
+              overflows tiny screens and pushes the CTA below the fold on
+              TikTok-viewer viewports. Mobile users get a cleaner hero
+              focused on headline + trust strip + CTA. Clarity recordings
+              showed dashboard rage-clicks; wrapping in Link drives accidental
+              clicks to signup instead of nowhere. */}
           <Link
             href="/login?mode=signup"
             aria-label="Sign up to use the real dashboard"
