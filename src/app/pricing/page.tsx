@@ -58,7 +58,6 @@ const TIERS: Tier[] = [
       "Backlink outreach workbench",
       "Internal-link graph",
       "Self-hosted page-view analytics",
-      "Hosted magic-link email",
       "Email support · 24h",
     ],
   },

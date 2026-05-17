@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import { BrandMark } from "@/components/BrandMark";
 
@@ -18,6 +18,8 @@ const NAV = [
 
 export function TopBar({ username }: { username?: string }) {
   const pathname = usePathname();
+  const router = useRouter();
+
   const isActive = (href: string) => {
     if (href === "/dashboard")
       return (
@@ -37,6 +39,19 @@ export function TopBar({ username }: { username?: string }) {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  // Clarity recordings showed users repeatedly clicking the active top-nav
+  // item with no visible response (Next.js no-ops navigations to the same
+  // path). Two fixes here: scroll-to-top + router.refresh() so a re-click on
+  // the current section gives unambiguous feedback (server components re-run,
+  // page snaps to top), and an explicit aria-current for screen readers.
+  const handleActiveClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    router.refresh();
+  };
+
   return (
     <div className="flex items-center gap-6 px-2">
       <Link href="/dashboard" className="flex items-center gap-2.5 font-extrabold text-lg no-underline tracking-tight">
@@ -45,19 +60,24 @@ export function TopBar({ username }: { username?: string }) {
       </Link>
 
       <nav className="flex gap-1 ml-2">
-        {NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors no-underline ${
-              isActive(item.href)
-                ? "bg-accent text-black"
-                : "text-muted hover:bg-surface-2 hover:text-text"
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {NAV.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              onClick={active ? handleActiveClick : undefined}
+              className={`relative px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors no-underline ${
+                active
+                  ? "bg-accent text-black shadow-glow"
+                  : "text-muted hover:bg-surface-2 hover:text-text"
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="ml-auto flex items-center gap-3">

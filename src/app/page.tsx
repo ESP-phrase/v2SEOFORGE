@@ -34,23 +34,36 @@ export default async function LandingPage() {
             AI-powered SEO automation
           </div>
           <h1 className="text-5xl md:text-[4rem] font-extrabold tracking-tight leading-[1.05] mt-5">
-            Scale SEO
+            SEO articles,
             <br />
-            <span className="text-accent">On Autopilot.</span>
+            <span className="text-accent">written & published.</span>
           </h1>
           <p className="text-muted text-lg mt-5 max-w-md">
-            Generate, optimize, and publish AI content across unlimited sites from one
-            powerful dashboard.
+            Queue a keyword. Get a 1,500-word, SERP-optimized article auto-published to your
+            WordPress site — in under 10 minutes.
           </p>
-          <div className="flex gap-3 mt-7 flex-wrap">
-            <LinkButton href="/pricing" size="lg">
-              Start $1 trial →
+          <div className="flex gap-3 mt-7 flex-wrap items-center">
+            <LinkButton href="/login?mode=signup" size="lg">
+              Start free →
             </LinkButton>
-            <LinkButton href="#features" variant="secondary" size="lg">
+            <LinkButton href="#how-it-works" variant="secondary" size="lg">
               See how it works
             </LinkButton>
           </div>
-          <div className="flex items-center gap-4 mt-10">
+          {/* Trust strip — sits directly under CTAs so it stays above the fold
+              even on shorter TikTok-viewer viewports (e.g. iPhone 12 mini). */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-[0.78rem] text-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <CheckBadge /> Free Hobby plan
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckBadge /> No credit card
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckBadge /> First article in 10 min
+            </span>
+          </div>
+          <div className="flex items-center gap-4 mt-8">
             <div className="flex -space-x-2">
               {[
                 "https://randomuser.me/api/portraits/men/32.jpg",
@@ -381,7 +394,7 @@ export default async function LandingPage() {
               seconds.
             </p>
             <div className="flex gap-3 mt-8 justify-center flex-wrap">
-              <LinkButton href="/login" size="lg">
+              <LinkButton href="/login?mode=signup" size="lg">
                 Start Free →
               </LinkButton>
               <LinkButton href="#pricing" variant="secondary" size="lg">
@@ -402,6 +415,19 @@ function CheckIcon() {
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#bef848" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
       <path d="m5 12 5 5 9-11" />
     </svg>
+  );
+}
+
+function CheckBadge() {
+  return (
+    <span
+      className="inline-grid place-items-center w-3.5 h-3.5 rounded-full bg-accent-dim"
+      aria-hidden
+    >
+      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#bef848" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
+        <path d="m5 12 5 5 9-11" />
+      </svg>
+    </span>
   );
 }
 

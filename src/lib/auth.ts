@@ -1,22 +1,18 @@
 /**
- * Auth.js v5 with magic-link email auth via Resend, plus Google / GitHub /
- * Twitter OAuth providers.
+ * Auth.js v5 with email+password auth and Google / GitHub / Twitter OAuth.
  *
- * - Magic-link login: user enters email → we send a one-time link → click signs in.
+ * - Email+password: handled by custom server actions (signUpAction,
+ *   signInWithPasswordAction in @/actions/auth) that bcrypt-hash and create
+ *   Session rows directly. Auth.js's Credentials provider would force JWT
+ *   sessions — we want database sessions so this is done outside providers.
  * - Database sessions (Prisma adapter) so multiple devices stay signed in.
- * - Open signups — anyone with a valid email can create an account. This is
- *   a public SaaS, not a self-hosted single-admin gate.
- *
- * Required env vars:
- *   RESEND_API_KEY  — from https://resend.com/api-keys
- *   EMAIL_FROM      — verified sender (or "onboarding@resend.dev" for testing)
+ * - Open signups — anyone with a valid email can create an account.
  */
 import NextAuth, { type DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
 import GitHub from "next-auth/providers/github";
-import Resend from "next-auth/providers/resend";
 import { prisma } from "@/lib/db";
 
 export function isGoogleAuthConfigured(): boolean {
@@ -83,20 +79,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   debug: true,
   adapter: tolerantAdapter(),
   session: { strategy: "database", maxAge: 60 * 60 * 24 * 14 }, // 14 days
-  pages: { signIn: "/login", verifyRequest: "/login/check", error: "/login" },
+  pages: { signIn: "/login", error: "/login" },
   providers: [
-    Resend({
-      apiKey: process.env.RESEND_API_KEY ?? "",
-      from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
-      name: "Email",
-    }),
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       authorization: { params: { scope: "openid email profile" } },
-      // Auto-link a Google identity to an existing User with the same email
-      // address. Safe here because email verification on the existing User
-      // happened out-of-band (magic link) — we know the user owns it.
+      // Auto-link a Google identity to an existing User with the same email.
+      // Google verifies email ownership on its side, so a password-only account
+      // can be safely claimed by the matching Google identity.
       allowDangerousEmailAccountLinking: true,
     }),
     ...(isXAuthConfigured()
