@@ -27,7 +27,7 @@ export function MarketingHeader() {
           <div className="px-3 md:px-4 py-2 flex items-center gap-2">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 font-extrabold no-underline shrink-0 px-1.5">
-              <svg width="36" height="36" viewBox="0 0 64 64" fill="none" aria-hidden className="drop-shadow-[0_0_8px_rgba(190,248,72,0.45)]">
+              <svg width="36" height="36" viewBox="0 0 64 64" fill="none" aria-hidden>
                 <defs>
                   <linearGradient id="mh-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#d4ff7a" />
@@ -68,7 +68,7 @@ export function MarketingHeader() {
                     aria-current={active ? "page" : undefined}
                     className={`group relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl no-underline transition-all duration-150 ${
                       active
-                        ? "text-accent bg-accent/10 shadow-[inset_0_0_0_1px_rgba(190,248,72,0.35),0_0_18px_-4px_rgba(190,248,72,0.45)]"
+                        ? "text-accent bg-accent/10"
                         : "text-muted hover:text-text hover:bg-white/[0.04]"
                     }`}
                   >
@@ -79,7 +79,7 @@ export function MarketingHeader() {
                     {n.dot ? (
                       <span
                         aria-hidden
-                        className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_6px_rgba(190,248,72,0.9)] ml-0.5"
+                        className="w-1.5 h-1.5 rounded-full bg-accent ml-0.5"
                       />
                     ) : null}
                   </Link>
@@ -98,7 +98,7 @@ export function MarketingHeader() {
               </Link>
               <Link
                 href="/login?mode=signup"
-                className="inline-flex items-center gap-1.5 text-[0.82rem] font-extrabold px-3.5 py-2 rounded-xl bg-accent text-black hover:bg-accent/90 no-underline transition-colors shadow-[0_0_20px_-4px_rgba(190,248,72,0.7)]"
+                className="inline-flex items-center gap-1.5 text-[0.82rem] font-extrabold px-3.5 py-2 rounded-xl bg-accent text-black hover:bg-accent/90 no-underline transition-colors"
               >
                 Get started
                 <ArrowRightIcon />
