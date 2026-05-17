@@ -9,16 +9,29 @@ import { useState } from "react";
  */
 const SECTIONS: { title: string; lines: string[] }[] = [
   {
-    title: "Ad text (under 100 chars, TikTok Ads Manager)",
+    title: "Ad text — time-avoidance hooks",
+    lines: [
+      "Sleep. Wake up. 3 new articles ranked.",
+      "Bedtime: 0 articles. Morning: 3 articles ranked.",
+      "Type 1 keyword. Wake up to a ranked post.",
+      "I haven't written a blog post in 6 months. My traffic doubled.",
+      "5 minutes today = 75 articles a month.",
+      "Set it Friday. Articles publish all weekend.",
+      "My blog publishes itself while I sleep.",
+      "Stop writing. Sleep more. Rank more.",
+    ],
+  },
+  {
+    title: "Ad text — feature / value hooks",
     lines: [
       "75 ranked articles to your WordPress site, on autopilot, every month.",
       "Stop writing. AI publishes 75 ranked articles a month.",
       "Your niche site on autopilot. 75 ranked articles a month.",
-      "Let us do the SEO for you.",
       "Rank #1 without writing a word.",
       "Your WordPress site, autopublished daily.",
       "Skip the writing. Keep the rankings.",
       "75 SEO articles to your site every month.",
+      "$1 today gets you 75 articles a month.",
     ],
   },
   {
