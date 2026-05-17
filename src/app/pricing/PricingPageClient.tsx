@@ -3,11 +3,6 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-
-// Note: page.tsx is the server entry — it reads ?v= server-side and passes
-// `variant` down. Variant detection here is therefore prop-driven, NOT
-// useSearchParams-driven, so SSR HTML matches client output (no hydration
-// mismatch) and search engines / bots crawl the right content per URL.
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { LinkButton } from "@/components/Button";
@@ -26,8 +21,7 @@ type Tier = {
   features: string[];
 };
 
-// Variant A (default) — $1 hold, 14-day trial, Creator/Operator/Agency.
-const TIERS_A: Tier[] = [
+const TIERS: Tier[] = [
   {
     name: "Creator",
     tagline: "For solo operators and a few niche sites.",
@@ -91,72 +85,6 @@ const TIERS_A: Tier[] = [
   },
 ];
 
-// Variant B (?v=b) — $4.99 paid trial, 3-day, Starter $39 / Growth $79 / Agency $199.
-// Same three internal plan slugs (hobby/operator/agency) under the hood —
-// just different fee, trial length, entry price, and labels.
-const TIERS_B: Tier[] = [
-  {
-    name: "Starter",
-    tagline: "For solo creators & niche site owners.",
-    trialFee: 4.99,
-    priceMo: 39,
-    priceYr: 31,
-    accent: false,
-    cta: "Start for $4.99",
-    articles: "75 articles / mo",
-    sites: "3 sites",
-    features: [
-      "AI keyword research",
-      "WordPress auto-publish",
-      "Quality gates + drafts review",
-      "Content planning + clustering",
-      "Activity log + cost tracking",
-      "Overage $0.49 / article",
-    ],
-  },
-  {
-    name: "Growth",
-    tagline: "For operators scaling multiple sites.",
-    trialFee: 4.99,
-    priceMo: 79,
-    priceYr: 63,
-    accent: true,
-    cta: "Start for $4.99",
-    articles: "250 articles / mo",
-    sites: "15 sites",
-    features: [
-      "Everything in Starter",
-      "Daily cron auto-publish",
-      "Advanced keyword research",
-      "Backlink opportunity finder",
-      "Self-hosted page-view analytics",
-      "Priority generation queue",
-      "Email support · 24h",
-      "Overage $0.29 / article",
-    ],
-  },
-  {
-    name: "Agency",
-    tagline: "For agencies & power users.",
-    trialFee: 4.99,
-    priceMo: 199,
-    priceYr: 159,
-    accent: false,
-    cta: "Start for $4.99",
-    articles: "1,000 articles / mo",
-    sites: "Unlimited sites",
-    features: [
-      "Everything in Growth",
-      "Team seats + client workspaces",
-      "White-label reports",
-      "API access",
-      "Priority Claude capacity",
-      "Slack support · 4h",
-      "Overage $0.15 / article",
-    ],
-  },
-];
-
 const COMPARE: { label: string; values: (string | boolean)[] }[] = [
   { label: "WordPress auto-publish", values: [true, true, true] },
   { label: "AI keyword research (Claude)", values: [true, true, true] },
@@ -205,9 +133,8 @@ const FAQ = [
   },
 ];
 
-export default function PricingPageClient({ variant }: { variant: "a" | "b" }) {
+export default function PricingPageClient() {
   const [annual, setAnnual] = useState(false);
-  const TIERS = variant === "b" ? TIERS_B : TIERS_A;
 
   return (
     <div className="min-h-screen bg-bg text-text">
@@ -216,16 +143,10 @@ export default function PricingPageClient({ variant }: { variant: "a" | "b" }) {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            {variant === "b" ? (
-              <>Start for <span className="text-accent">$4.99.</span></>
-            ) : (
-              <>Start free for 14 days. <span className="text-accent">No risk.</span></>
-            )}
+            Start free for 14 days. <span className="text-accent">No risk.</span>
           </h1>
           <p className="text-muted text-base mt-3">
-            {variant === "b"
-              ? "Today: $4.99 for 3-day premium access · Renews at your plan price unless cancelled · Cancel anytime in 2 clicks."
-              : "$1 verification hold to prevent abuse · Cancel anytime, no questions asked."}
+            $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
           </p>
           <PricingErrorBanner />
         </div>
@@ -328,7 +249,7 @@ export default function PricingPageClient({ variant }: { variant: "a" | "b" }) {
                 <form
                   action={startCheckoutAction}
                   onSubmit={() => {
-                    console.log(`[pricing] Start trial click plan=${slug} cadence=${annual ? "annual" : "monthly"} variant=${variant}`);
+                    console.log(`[pricing] Start trial click plan=${slug} cadence=${annual ? "annual" : "monthly"}`);
                     const value = t.trialFee;
                     try {
                       const w = window as unknown as { ttq?: { track?: (e: string, p: Record<string, unknown>) => void } };
@@ -351,7 +272,6 @@ export default function PricingPageClient({ variant }: { variant: "a" | "b" }) {
                 >
                   <input type="hidden" name="plan" value={slug} />
                   <input type="hidden" name="cadence" value={annual ? "annual" : "monthly"} />
-                  <input type="hidden" name="variant" value={variant} />
                   <button
                     type="submit"
                     className={`w-full px-4 py-3 text-sm font-extrabold rounded-xl transition-all ${
@@ -376,8 +296,8 @@ export default function PricingPageClient({ variant }: { variant: "a" | "b" }) {
           {[
             {
               icon: <ShieldIcon />,
-              title: variant === "b" ? "3-day premium trial" : "14-day trial",
-              body: variant === "b" ? "$4.99 today, renews at plan price" : "$1 verification hold",
+              title: "14-day trial",
+              body: "$1 verification hold",
             },
             {
               icon: <LockIcon />,
