@@ -31,45 +31,71 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) redirect("/login");
 
-  // Reuse existing customer if present, else create one.
-  let customerId = user.stripeCustomerId;
-  if (!customerId) {
-    const c = await stripe.customers.create({
-      email: email ?? undefined,
-      metadata: { userId },
+  // All Stripe API calls below are wrapped in a single try/catch so any
+  // configuration failure (missing/invalid price IDs, key mismatch between
+  // test and live mode, expired key, network blip) lands the user back on
+  // /pricing with a real error message instead of Next.js's generic
+  // "Application error: a server-side exception has occurred" page. The
+  // underlying cause is logged to Vercel server logs for debugging.
+  // redirect() throws NEXT_REDIRECT internally — it must be allowed to
+  // propagate, hence the explicit re-throw on that digest.
+  let checkoutUrl: string | null = null;
+  let checkoutId: string | null = null;
+  try {
+    // Reuse existing customer if present, else create one.
+    let customerId = user.stripeCustomerId;
+    if (!customerId) {
+      const c = await stripe.customers.create({
+        email: email ?? undefined,
+        metadata: { userId },
+      });
+      customerId = c.id;
+      await prisma.user.update({ where: { id: userId }, data: { stripeCustomerId: customerId } });
+    }
+
+    // Two-line checkout: (1) one-time trial fee charged immediately, (2) the
+    // recurring subscription price on a 14-day free trial — so the next
+    // charge after the trial fee lands 14 days later at the full monthly
+    // rate. Stripe Checkout handles both line items in one session.
+    const checkout = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer: customerId,
+      payment_method_types: ["card", "link"],
+      line_items: [
+        { price: trialFeePriceId, quantity: 1 },  // one-time trial fee
+        { price: priceId,         quantity: 1 },  // recurring subscription
+      ],
+      success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl()}/pricing?status=cancel`,
+      allow_promotion_codes: true,
+      subscription_data: {
+        trial_period_days: 14,
+        metadata: { userId, plan },
+      },
+      metadata: { userId, plan },
     });
-    customerId = c.id;
-    await prisma.user.update({ where: { id: userId }, data: { stripeCustomerId: customerId } });
+    checkoutUrl = checkout.url;
+    checkoutId = checkoutId;
+  } catch (e) {
+    if (
+      e && typeof e === "object" && "digest" in e &&
+      typeof (e as { digest?: string }).digest === "string" &&
+      (e as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+    ) {
+      throw e;
+    }
+    const raw = e instanceof Error ? e.message : String(e);
+    console.error("[billing] startCheckoutAction failed:", { plan, cadence, error: raw });
+    const friendly =
+      raw.includes("No such price") || raw.includes("Invalid API Key")
+        ? "Checkout is misconfigured — our team has been notified. Please try again shortly."
+        : `Checkout failed: ${raw.slice(0, 140)}`;
+    redirect(`/pricing?error=${encodeURIComponent(friendly)}`);
   }
 
-  // Two-line checkout: (1) one-time trial fee charged immediately, (2) the
-  // recurring subscription price on a 14-day free trial — so the next
-  // charge after the trial fee lands 14 days later at the full monthly
-  // rate. Stripe Checkout handles both line items in one session.
-  // Payment methods: "card" + "link" explicitly enables Stripe Link (one-click
-  // checkout with stored card). Apple Pay and Google Pay surface automatically
-  // on the "card" rail when the buyer is on a supported device, provided the
-  // Stripe dashboard has wallets enabled (Settings → Payment methods → Wallets).
-  // We omit explicit Apple/Google entries so Stripe picks them up per device.
-  const checkout = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    customer: customerId,
-    payment_method_types: ["card", "link"],
-    line_items: [
-      { price: trialFeePriceId, quantity: 1 },  // one-time trial fee
-      { price: priceId,         quantity: 1 },  // recurring subscription
-    ],
-    success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl()}/pricing?status=cancel`,
-    allow_promotion_codes: true,
-    subscription_data: {
-      trial_period_days: 14,
-      metadata: { userId, plan },
-    },
-    metadata: { userId, plan },
-  });
-
-  if (!checkout.url) redirect("/pricing?error=stripe+session+failed");
+  if (!checkoutUrl || !checkoutId) {
+    redirect("/pricing?error=" + encodeURIComponent("Stripe session could not be created."));
+  }
 
   // Mid-funnel ad signal: user picked a plan and is heading to Stripe.
   // Fires server-side so iOS/ad-block can't strip it. The browser pixel
@@ -94,9 +120,9 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
     // synthesised at session-create time. Algorithmically still useful — the
     // event correlates with eventual CompletePayment.
     const tt = [
-      { name: "AddToCart" as const,        eid: `atc_${checkout.id}` },
-      { name: "InitiateCheckout" as const, eid: checkout.id },
-      { name: "AddPaymentInfo" as const,   eid: `api_${checkout.id}` },
+      { name: "AddToCart" as const,        eid: `atc_${checkoutId}` },
+      { name: "InitiateCheckout" as const, eid: checkoutId },
+      { name: "AddPaymentInfo" as const,   eid: `api_${checkoutId}` },
     ];
     for (const e of tt) {
       await sendTikTokEvent({
@@ -106,7 +132,7 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
         value,
         currency: "USD",
         contentName: `${plan} plan`,
-        contentId: checkout.id,
+        contentId: checkoutId,
         eventId: e.eid,
       });
     }
@@ -122,13 +148,13 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
       value,
       currency: "USD",
       itemCount: 1,
-      conversionId: checkout.id,
+      conversionId: checkoutId,
     });
   } catch {
     /* never block checkout on tracking */
   }
 
-  redirect(checkout.url);
+  redirect(checkoutUrl);
 }
 
 export async function openBillingPortalAction(): Promise<void> {

@@ -70,7 +70,10 @@ export async function ToolsHub() {
           {sites.length > 1 ? ` · ${sites.length - 1} other site${sites.length > 2 ? "s" : ""}` : ""}
         </span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* 7 cards total (Add-site + 6 tools). 6 columns left an orphan;
+          7 columns on xl gives a perfectly even single row. lg drops to
+          4 cols (4/3 split — far cleaner than 6/1). */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
         {/* Add another site — always first card */}
         <Link
           href="/sites/new"

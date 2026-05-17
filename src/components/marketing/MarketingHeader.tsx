@@ -61,7 +61,7 @@ export function MarketingHeader() {
           >
             Sign in
           </Link>
-          <LinkButton href="/login?mode=signup">Start free</LinkButton>
+          <LinkButton href="/login?mode=signup">Get started</LinkButton>
         </div>
       </div>
     </header>

@@ -19,8 +19,17 @@ export default async function LoginPage({
     <>
       <div className="text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight whitespace-nowrap">
-          <span className="text-text">Welcome to </span>
-          <span className="text-accent">SEOForge</span>
+          {isSignup ? (
+            <>
+              <span className="text-text">Start with </span>
+              <span className="text-accent">SEOForge</span>
+            </>
+          ) : (
+            <>
+              <span className="text-text">Welcome </span>
+              <span className="text-accent">back</span>
+            </>
+          )}
           <svg
             width="18"
             height="18"
@@ -33,7 +42,9 @@ export default async function LoginPage({
           </svg>
         </h1>
         <p className="text-muted text-sm mt-2">
-          {isSignup ? "Create your account to get started" : "Sign in to continue to your account"}
+          {isSignup
+            ? "Free Hobby plan, no credit card. Takes 30 seconds."
+            : "Sign in to pick up where you left off."}
         </p>
       </div>
 
@@ -114,7 +125,7 @@ export default async function LoginPage({
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-border" />
             <span className="text-muted-2 text-[0.6rem] uppercase tracking-[0.18em] font-bold">
-              or with email
+              or use email & password
             </span>
             <div className="flex-1 h-px bg-border" />
           </div>
@@ -168,7 +179,7 @@ export default async function LoginPage({
                 required
                 minLength={8}
                 autoComplete={isSignup ? "new-password" : "current-password"}
-                placeholder={isSignup ? "Create a password (8+ chars)" : "Your password"}
+                placeholder={isSignup ? "Pick a password (8+ characters)" : "Password"}
                 className="w-full pl-11 pr-3 py-3 bg-bg border border-border rounded-xl text-sm text-text focus:outline-none focus:border-accent-border placeholder:text-muted-2"
               />
             </div>
@@ -176,7 +187,7 @@ export default async function LoginPage({
               type="submit"
               className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 bg-accent text-black rounded-xl font-extrabold text-sm hover:bg-accent/90 transition-colors shadow-glow relative"
             >
-              {isSignup ? "Create account" : "Sign in"}
+              {isSignup ? "Create free account" : "Sign in"}
               <svg
                 width="16"
                 height="16"
@@ -201,8 +212,8 @@ export default async function LoginPage({
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
             {isSignup
-              ? "Open signups. Free Hobby plan, no card required."
-              : "Stay signed in for 14 days on this browser."}
+              ? "10 free articles every month. Cancel anytime."
+              : "We'll keep you signed in for 14 days."}
           </div>
         </div>
       </div>
