@@ -90,7 +90,16 @@ export default async function LandingPage() {
         </div>
 
         <div className="lg:col-span-7 relative">
-          <DashboardMockup />
+          {/* Clarity recordings showed users rage-clicking this static
+              mockup expecting interactivity — wrap the whole thing in a Link
+              so any click drives to signup instead of going nowhere. */}
+          <Link
+            href="/login?mode=signup"
+            aria-label="Sign up to use the real dashboard"
+            className="block no-underline cursor-pointer"
+          >
+            <DashboardMockup />
+          </Link>
         </div>
       </section>
 
@@ -222,9 +231,13 @@ export default async function LandingPage() {
                   "radial-gradient(50% 60% at 50% 50%, rgba(190,248,72,0.18), transparent 70%)",
               }}
             />
-            <div className="relative rounded-3xl overflow-hidden">
+            <Link
+              href="/login?mode=signup"
+              aria-label="Sign up to use the real dashboard"
+              className="relative rounded-3xl overflow-hidden block no-underline cursor-pointer"
+            >
               <DashboardMockup variant="showcase" />
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -452,16 +465,22 @@ function Feature({
     amber: "bg-tile-amber/15 text-tile-amber",
     violet: "bg-tile-violet/15 text-tile-violet",
   }[tone];
+  // Clarity recordings showed dead clicks on these tiles — users perceived
+  // them as buttons that linked to deeper detail. Wrap in a Link so a click
+  // drives to /features instead of going nowhere.
   return (
-    <div className="flex items-start gap-4">
+    <Link
+      href="/features"
+      className="flex items-start gap-4 no-underline group cursor-pointer"
+    >
       <div className={`w-12 h-12 rounded-xl grid place-items-center shrink-0 ${toneCls}`}>
         {icon}
       </div>
       <div>
-        <div className="font-bold text-base mb-1">{title}</div>
+        <div className="font-bold text-base mb-1 group-hover:text-accent transition-colors">{title}</div>
         <div className="text-muted text-sm leading-snug">{body}</div>
       </div>
-    </div>
+    </Link>
   );
 }
 

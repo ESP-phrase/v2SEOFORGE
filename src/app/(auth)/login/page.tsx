@@ -6,6 +6,7 @@ import {
   signUpAction,
 } from "@/actions/auth";
 import { isGitHubAuthConfigured } from "@/lib/auth";
+import { SubmitButton } from "./SubmitButton";
 
 export default async function LoginPage({
   searchParams,
@@ -187,27 +188,10 @@ export default async function LoginPage({
                 className="w-full pl-11 pr-3 py-3 bg-bg border border-border rounded-xl text-sm text-text focus:outline-none focus:border-accent-border placeholder:text-muted-2"
               />
             </div>
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 bg-accent text-black rounded-xl font-extrabold text-sm hover:bg-accent/90 transition-colors shadow-glow relative"
-            >
-              {isSignup ? "Create free account" : "Sign in"}
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-                className="absolute right-4"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </button>
+            <SubmitButton
+              idleLabel={isSignup ? "Create free account" : "Sign in"}
+              busyLabel={isSignup ? "Creating account…" : "Signing in…"}
+            />
           </form>
 
           {/* Footer note */}
