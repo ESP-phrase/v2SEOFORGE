@@ -32,28 +32,35 @@ export default function OGImage() {
             marginBottom: 56,
           }}
         >
-          {/* Logo — gradient S, no container, with soft lime glow */}
+          {/* Logo — hexagon outline + bold S */}
           <div
             style={{
-              width: 110,
-              height: 110,
+              width: 120,
+              height: 120,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <svg width="110" height="110" viewBox="0 0 64 64">
+            <svg width="120" height="120" viewBox="0 0 64 64">
               <defs>
                 <linearGradient id="og-grad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#d4ff7a" />
-                  <stop offset="55%" stopColor="#b3f048" />
+                  <stop offset="50%" stopColor="#b3f048" />
                   <stop offset="100%" stopColor="#7bbf3a" />
                 </linearGradient>
               </defs>
-              <path
-                d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
+              <polygon
+                points="32,5 55,18.5 55,45.5 32,59 9,45.5 9,18.5"
+                fill="none"
                 stroke="url(#og-grad)"
-                strokeWidth={14}
+                strokeWidth={3}
+                strokeLinejoin="round"
+              />
+              <path
+                d="M44 22 a8 8 0 0 0 -8 -8 h-6 a8 8 0 0 0 0 16 h6 a8 8 0 0 1 0 16 h-6 a8 8 0 0 1 -8 -8"
+                stroke="url(#og-grad)"
+                strokeWidth={7}
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"

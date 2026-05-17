@@ -1,21 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="s-grad" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="hex-grad" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#d4ff7a"/>
-      <stop offset="55%" stop-color="#b3f048"/>
+      <stop offset="50%" stop-color="#b3f048"/>
       <stop offset="100%" stop-color="#7bbf3a"/>
     </linearGradient>
-    <filter id="s-shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.3"/>
+    <filter id="hex-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1" flood-color="#000" flood-opacity="0.25"/>
     </filter>
   </defs>
-  <path
-    d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
-    stroke="url(#s-grad)"
-    stroke-width="14"
-    fill="none"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    filter="url(#s-shadow)"
-  />
+  <g filter="url(#hex-shadow)">
+    <polygon
+      points="32,5 55,18.5 55,45.5 32,59 9,45.5 9,18.5"
+      fill="none"
+      stroke="url(#hex-grad)"
+      stroke-width="3"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M44 22 a8 8 0 0 0 -8 -8 h-6 a8 8 0 0 0 0 16 h6 a8 8 0 0 1 0 16 h-6 a8 8 0 0 1 -8 -8"
+      stroke="url(#hex-grad)"
+      stroke-width="7"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
 </svg>
