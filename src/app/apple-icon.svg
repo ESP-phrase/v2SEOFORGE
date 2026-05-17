@@ -5,25 +5,25 @@
       <stop offset="50%" stop-color="#b3f048"/>
       <stop offset="100%" stop-color="#7bbf3a"/>
     </linearGradient>
-    <filter id="hex-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
-    </filter>
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
   </defs>
-  <g filter="url(#hex-shadow)">
-    <polygon
-      points="90,14 155,52 155,128 90,166 25,128 25,52"
-      fill="none"
-      stroke="url(#hex-grad)"
-      stroke-width="9"
-      stroke-linejoin="round"
-    />
-    <path
-      d="M122 60 a22 22 0 0 0 -22 -22 h-20 a22 22 0 0 0 0 44 h20 a22 22 0 0 1 0 44 h-20 a22 22 0 0 1 -22 -22"
-      stroke="url(#hex-grad)"
-      stroke-width="20"
-      fill="none"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </g>
+  <rect width="180" height="180" rx="38" fill="url(#bg-grad)"/>
+  <polygon
+    points="90,22 148,55 148,125 90,158 32,125 32,55"
+    fill="none"
+    stroke="url(#hex-grad)"
+    stroke-width="8"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M120 60 a20 20 0 0 0 -20 -20 h-16 a20 20 0 0 0 0 40 h16 a20 20 0 0 1 0 40 h-16 a20 20 0 0 1 -20 -20"
+    stroke="url(#hex-grad)"
+    stroke-width="18"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 </svg>

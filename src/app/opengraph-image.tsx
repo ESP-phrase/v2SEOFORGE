@@ -32,17 +32,20 @@ export default function OGImage() {
             marginBottom: 56,
           }}
         >
-          {/* Logo — hexagon outline + bold S */}
+          {/* Logo — app-icon style: black rounded square with lime hexagon + S */}
           <div
             style={{
               width: 120,
               height: 120,
+              borderRadius: 24,
+              background: "radial-gradient(60% 60% at 50% 50%, #1a1a1a 0%, #000 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              boxShadow: "0 0 60px rgba(190,248,72,0.45)",
             }}
           >
-            <svg width="120" height="120" viewBox="0 0 64 64">
+            <svg width="96" height="96" viewBox="0 0 64 64">
               <defs>
                 <linearGradient id="og-grad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#d4ff7a" />
@@ -51,16 +54,16 @@ export default function OGImage() {
                 </linearGradient>
               </defs>
               <polygon
-                points="32,5 55,18.5 55,45.5 32,59 9,45.5 9,18.5"
+                points="32,8 53,20 53,44 32,56 11,44 11,20"
                 fill="none"
                 stroke="url(#og-grad)"
-                strokeWidth={3}
+                strokeWidth={2.5}
                 strokeLinejoin="round"
               />
               <path
-                d="M44 22 a8 8 0 0 0 -8 -8 h-6 a8 8 0 0 0 0 16 h6 a8 8 0 0 1 0 16 h-6 a8 8 0 0 1 -8 -8"
+                d="M43 22 a7 7 0 0 0 -7 -7 h-5 a7 7 0 0 0 0 14 h5 a7 7 0 0 1 0 14 h-5 a7 7 0 0 1 -7 -7"
                 stroke="url(#og-grad)"
-                strokeWidth={7}
+                strokeWidth={6}
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"

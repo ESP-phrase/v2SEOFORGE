@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 
 // Apple touch icon — 180x180. Used when iOS users save the site to home screen,
-// and as the image Stripe shows on product rows in Checkout.
+// and as the image Stripe shows on product rows in Checkout. Black backdrop so
+// the mark reads on any home-screen wallpaper.
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
@@ -15,7 +16,8 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "transparent",
+          background: "radial-gradient(60% 60% at 50% 50%, #1a1a1a 0%, #000 100%)",
+          borderRadius: 38,
         }}
       >
         <svg width="180" height="180" viewBox="0 0 180 180">
@@ -27,16 +29,16 @@ export default function AppleIcon() {
             </linearGradient>
           </defs>
           <polygon
-            points="90,14 155,52 155,128 90,166 25,128 25,52"
+            points="90,22 148,55 148,125 90,158 32,125 32,55"
             fill="none"
             stroke="url(#g)"
-            strokeWidth={9}
+            strokeWidth={8}
             strokeLinejoin="round"
           />
           <path
-            d="M122 60 a22 22 0 0 0 -22 -22 h-20 a22 22 0 0 0 0 44 h20 a22 22 0 0 1 0 44 h-20 a22 22 0 0 1 -22 -22"
+            d="M120 60 a20 20 0 0 0 -20 -20 h-16 a20 20 0 0 0 0 40 h16 a20 20 0 0 1 0 40 h-16 a20 20 0 0 1 -20 -20"
             stroke="url(#g)"
-            strokeWidth={20}
+            strokeWidth={18}
             fill="none"
             strokeLinecap="round"
             strokeLinejoin="round"

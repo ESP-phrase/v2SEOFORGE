@@ -1,6 +1,8 @@
 /**
- * SEOForge brand mark — lime hexagon outline enclosing a bold lime S.
- * Same shape as /icon.svg so favicon and in-page logo stay in lockstep.
+ * SEOForge brand mark — black rounded square containing a lime hexagon
+ * outline and a bold lime S. Matches /icon.svg so favicon and in-page
+ * logo stay in lockstep. The black backdrop ensures the mark reads
+ * cleanly on any surface (light wallpapers, browser chrome, etc.).
  */
 export function BrandMark({
   size = 36,
@@ -24,27 +26,27 @@ export function BrandMark({
           <stop offset="50%" stopColor="#b3f048" />
           <stop offset="100%" stopColor="#7bbf3a" />
         </linearGradient>
-        <filter id="bm-shadow" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="1.5" stdDeviation="1" floodColor="#000" floodOpacity="0.25" />
-        </filter>
+        <radialGradient id="bm-bg" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="#1a1a1a" />
+          <stop offset="100%" stopColor="#000000" />
+        </radialGradient>
       </defs>
-      <g filter="url(#bm-shadow)">
-        <polygon
-          points="32,5 55,18.5 55,45.5 32,59 9,45.5 9,18.5"
-          fill="none"
-          stroke="url(#bm-grad)"
-          strokeWidth="3"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M44 22 a8 8 0 0 0 -8 -8 h-6 a8 8 0 0 0 0 16 h6 a8 8 0 0 1 0 16 h-6 a8 8 0 0 1 -8 -8"
-          stroke="url(#bm-grad)"
-          strokeWidth="7"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </g>
+      <rect width="64" height="64" rx="12" fill="url(#bm-bg)" />
+      <polygon
+        points="32,8 53,20 53,44 32,56 11,44 11,20"
+        fill="none"
+        stroke="url(#bm-grad)"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M43 22 a7 7 0 0 0 -7 -7 h-5 a7 7 0 0 0 0 14 h5 a7 7 0 0 1 0 14 h-5 a7 7 0 0 1 -7 -7"
+        stroke="url(#bm-grad)"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
