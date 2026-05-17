@@ -56,7 +56,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, err: "bad url" }, { status: 400, headers: CORS });
     }
 
-    // Match site by wpUrl host. Match article by exact wpUrl, falling back to slug-in-path.
+    // Fast path: pings from our own marketing site (seoforge.org or a Vercel
+    // preview URL) never resolve to a wp Site row, so skip the lookup and
+    // write the row directly with siteId=null. /admin/live filters on
+    // siteId=null to count own-site visitors.
+    const isOwnHost =
+      host === "seoforge.org" ||
+      host === "www.seoforge.org" ||
+      host.endsWith(".vercel.app");
+    if (isOwnHost) {
+      await prisma.pageView.create({
+        data: { siteId: null, articleId: null, path, referrer, country, ua, ipHash, isBot },
+      });
+      return NextResponse.json({ ok: true }, { headers: CORS });
+    }
+
+    // Customer WP site path: match site by wpUrl host. Match article by exact
+    // wpUrl, falling back to slug-in-path.
     const sites = await prisma.site.findMany({
       where: { active: true },
       select: { id: true, wpUrl: true },

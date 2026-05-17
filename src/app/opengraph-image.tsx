@@ -32,27 +32,29 @@ export default function OGImage() {
             marginBottom: 56,
           }}
         >
-          {/* Logo tile */}
+          {/* Logo tile — black bg with lime S */}
           <div
             style={{
               width: 96,
               height: 96,
               borderRadius: 22,
-              backgroundImage: "linear-gradient(180deg,#caff5e 0%,#a3dc34 100%)",
+              backgroundColor: "#000",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 60px rgba(190,248,72,0.4)",
+              boxShadow: "0 0 60px rgba(190,248,72,0.55)",
             }}
           >
-            <div style={{ display: "flex", transform: "rotate(8deg)" }}>
-              <svg width="64" height="64" viewBox="0 0 64 64">
-                <path
-                  d="M32 0 L37 27 L64 32 L37 37 L32 64 L27 37 L0 32 L27 27 Z"
-                  fill="#0f1b00"
-                />
-              </svg>
-            </div>
+            <svg width="72" height="72" viewBox="0 0 64 64">
+              <path
+                d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
+                stroke="#bef848"
+                strokeWidth={9}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
           <div style={{ display: "flex", fontSize: 64, fontWeight: 900, letterSpacing: -2 }}>
             <span style={{ color: "#ffffff" }}>SEO</span>

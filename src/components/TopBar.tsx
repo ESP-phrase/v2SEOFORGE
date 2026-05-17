@@ -62,11 +62,18 @@ export function TopBar({ username }: { username?: string }) {
           className="flex items-center gap-2 font-extrabold no-underline shrink-0 px-1.5"
         >
           <span
-            className="w-9 h-9 rounded-xl bg-accent grid place-items-center text-black shadow-[0_0_18px_rgba(190,248,72,0.55)]"
+            className="w-9 h-9 rounded-xl bg-black grid place-items-center shadow-[0_0_18px_rgba(190,248,72,0.45)] ring-1 ring-white/5"
             aria-hidden
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2z" />
+            <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+              <path
+                d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
+                stroke="#bef848"
+                strokeWidth="9"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </span>
           <span className="hidden sm:inline text-lg tracking-tight leading-none">

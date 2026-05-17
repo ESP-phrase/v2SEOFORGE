@@ -23,9 +23,15 @@ export function DashboardMockup({ variant = "hero" }: { variant?: "hero" | "show
           <aside className="bg-bg-2 border-r border-border p-3 flex flex-col">
             <div className="flex items-center gap-1.5 px-2 py-1.5 mb-4">
               <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden>
-                <rect width="64" height="64" rx="14" fill="#bef848" />
-                <path d="M40 16 H22 a8 8 0 0 0 0 16 h12 a8 8 0 0 1 0 16 H16" stroke="#000" strokeWidth="6" strokeLinecap="round" fill="none" />
-                <circle cx="50" cy="14" r="4" fill="#000" />
+                <rect width="64" height="64" rx="14" fill="#0a0a0a" />
+                <path
+                  d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
+                  stroke="#bef848"
+                  strokeWidth="9"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
               <span className="font-extrabold text-xs">SEOFORGE</span>
             </div>

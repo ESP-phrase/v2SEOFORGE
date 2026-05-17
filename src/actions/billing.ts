@@ -106,50 +106,46 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   // fee), not the eventual recurring price. Better matches what TikTok/
   // Reddit can attribute to the click — the bigger amount lands 14 days
   // later when the trial converts (separate CompletePayment fire).
+  // Fire all server-side pixel events in parallel so the redirect to Stripe
+  // isn't gated on 4 sequential outbound calls. Each call has its own retry
+  // path inside its helper; Promise.allSettled means a single failing pixel
+  // doesn't take the others down. We still await — Vercel kills the function
+  // the moment redirect() throws, so any unawaited work is lost.
   const value = TRIAL_FEE_USD[plan];
   try {
-    const { sendTikTokEvent } = await import("@/lib/tiktokCapi");
-    // Fire THREE TikTok events for the same Subscribe-click → Stripe-redirect
-    // moment, all with distinct event_ids so TikTok counts them separately.
-    // This gives ad campaigns three optimization-goal choices, each at a
-    // slightly different funnel depth:
-    //   AddToCart        — "interested" signal, highest volume
-    //   InitiateCheckout — "decided" signal, slightly tighter
-    //   AddPaymentInfo   — "ready to pay" signal, tightest mid-funnel
-    // Stripe Checkout doesn't fire a true AddPaymentInfo event, so this is
-    // synthesised at session-create time. Algorithmically still useful — the
-    // event correlates with eventual CompletePayment.
-    const tt = [
-      { name: "AddToCart" as const,        eid: `atc_${checkoutId}` },
-      { name: "InitiateCheckout" as const, eid: checkoutId },
-      { name: "AddPaymentInfo" as const,   eid: `api_${checkoutId}` },
-    ];
-    for (const e of tt) {
-      await sendTikTokEvent({
-        eventName: e.name,
+    const [{ sendTikTokEvent }, { sendRedditEvent }] = await Promise.all([
+      import("@/lib/tiktokCapi"),
+      import("@/lib/redditCapi"),
+    ]);
+    await Promise.allSettled([
+      sendTikTokEvent({
+        eventName: "AddToCart",
         email: email ?? undefined,
-        userId,
-        value,
-        currency: "USD",
-        contentName: `${plan} plan`,
-        contentId: checkoutId,
-        eventId: e.eid,
-      });
-    }
-  } catch {
-    /* never block checkout on tracking */
-  }
-  try {
-    const { sendRedditEvent } = await import("@/lib/redditCapi");
-    await sendRedditEvent({
-      eventName: "AddToCart",
-      email: email ?? undefined,
-      userId,
-      value,
-      currency: "USD",
-      itemCount: 1,
-      conversionId: checkoutId,
-    });
+        userId, value, currency: "USD",
+        contentName: `${plan} plan`, contentId: checkoutId,
+        eventId: `atc_${checkoutId}`,
+      }),
+      sendTikTokEvent({
+        eventName: "InitiateCheckout",
+        email: email ?? undefined,
+        userId, value, currency: "USD",
+        contentName: `${plan} plan`, contentId: checkoutId,
+        eventId: checkoutId,
+      }),
+      sendTikTokEvent({
+        eventName: "AddPaymentInfo",
+        email: email ?? undefined,
+        userId, value, currency: "USD",
+        contentName: `${plan} plan`, contentId: checkoutId,
+        eventId: `api_${checkoutId}`,
+      }),
+      sendRedditEvent({
+        eventName: "AddToCart",
+        email: email ?? undefined,
+        userId, value, currency: "USD",
+        itemCount: 1, conversionId: checkoutId,
+      }),
+    ]);
   } catch {
     /* never block checkout on tracking */
   }

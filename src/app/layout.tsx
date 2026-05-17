@@ -7,6 +7,7 @@ import { GoogleAds } from "@/components/GoogleAds";
 import { MicrosoftAds } from "@/components/MicrosoftAds";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ChatWidget } from "@/components/ChatWidget";
+import { PageTracker } from "@/components/PageTracker";
 
 const SITE = "https://www.seoforge.org";
 const SITE_NAME = "SEOForge";
@@ -156,6 +157,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_SCHEMA) }}
         />
+        <PageTracker />
         {children}
         <ChatWidget />
         <SpeedInsights />

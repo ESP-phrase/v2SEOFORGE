@@ -14,25 +14,20 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundImage: "linear-gradient(180deg,#caff5e 0%,#a3dc34 100%)",
+          background: "radial-gradient(60% 60% at 50% 50%, #1a1a1a 0%, #000 100%)",
           borderRadius: 38,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transform: "rotate(8deg)",
-          }}
-        >
-          <svg width="120" height="120" viewBox="0 0 120 120">
-            <path
-              d="M60 0 L70 50 L120 60 L70 70 L60 120 L50 70 L0 60 L50 50 Z"
-              fill="#0f1b00"
-            />
-          </svg>
-        </div>
+        <svg width="140" height="140" viewBox="0 0 64 64">
+          <path
+            d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
+            stroke="#bef848"
+            strokeWidth="9"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
     ),
     size,

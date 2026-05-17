@@ -24,6 +24,16 @@ export const stripe = new Proxy({} as Stripe, {
       _stripe = new Stripe(key, {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         apiVersion: "2024-12-18.acacia" as any,
+        // Bumped from SDK default (2) because we saw "Request was retried 2
+        // times" failures on cold Vercel functions during peak launches —
+        // transient network blips between vercel-iad and api.stripe.com.
+        // 5 retries with exponential backoff gives ~7s budget before we
+        // surface an error to the user, which is fine for a checkout click.
+        maxNetworkRetries: 5,
+        // Per-call timeout: default 80s is way too long inside a serverless
+        // function that can be torn down at 60s. Cap at 20s so a hung Stripe
+        // call surfaces fast and the SDK can retry within the function budget.
+        timeout: 20000,
       });
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
