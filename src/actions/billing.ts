@@ -67,49 +67,76 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
     // surfacing as opaque "An error occurred with our connection to Stripe.
     // Request was retried N times" failures. stripeFetch logs each attempt
     // so the exact failure mode lands in Vercel function logs.
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      console.log(`[checkout ${reqId}] creating Stripe customer…`);
+    const createLiveCustomer = async (): Promise<string> => {
       const tc = Date.now();
       const c = await stripeFetch<{ id: string }>(
         "/v1/customers",
         { email: email ?? undefined, "metadata[userId]": userId },
         { reqId },
       );
-      customerId = c.id;
-      await prisma.user.update({ where: { id: userId }, data: { stripeCustomerId: customerId } });
-      console.log(`[checkout ${reqId}] customer created id=${customerId} in ${Date.now() - tc}ms`);
+      await prisma.user.update({ where: { id: userId }, data: { stripeCustomerId: c.id } });
+      console.log(`[checkout ${reqId}] customer created id=${c.id} in ${Date.now() - tc}ms`);
+      return c.id;
+    };
+
+    let customerId = user.stripeCustomerId;
+    if (!customerId) {
+      console.log(`[checkout ${reqId}] creating Stripe customer…`);
+      customerId = await createLiveCustomer();
     } else {
       console.log(`[checkout ${reqId}] reusing customer id=${customerId}`);
     }
+
+    const sessionPayload = (cust: string) => ({
+      mode: "subscription",
+      customer: cust,
+      payment_method_types: ["card", "link"],
+      line_items: [
+        { price: trialFeePriceId, quantity: 1 },
+        { price: priceId,         quantity: 1 },
+      ],
+      success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl()}/pricing?status=cancel`,
+      allow_promotion_codes: true,
+      subscription_data: {
+        trial_period_days: 14,
+        metadata: { userId, plan },
+      },
+      metadata: { userId, plan },
+    });
 
     // Two-line checkout: (1) one-time trial fee charged immediately, (2) the
     // recurring subscription price on a 14-day free trial — so the next
     // charge after the trial fee lands 14 days later at the full monthly
     // rate. Stripe Checkout handles both line items in one session.
+    //
+    // Self-healing: if Stripe returns "No such customer" the saved ID is
+    // stale (e.g., it was created in test mode before we switched to a live
+    // key). Recreate the customer in the current mode, update the User row,
+    // and retry the session creation once before giving up.
     console.log(`[checkout ${reqId}] creating Stripe checkout session…`);
     const ts = Date.now();
-    const checkout = await stripeFetch<{ id: string; url: string | null }>(
-      "/v1/checkout/sessions",
-      {
-        mode: "subscription",
-        customer: customerId,
-        payment_method_types: ["card", "link"],
-        line_items: [
-          { price: trialFeePriceId, quantity: 1 },
-          { price: priceId,         quantity: 1 },
-        ],
-        success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${appUrl()}/pricing?status=cancel`,
-        allow_promotion_codes: true,
-        subscription_data: {
-          trial_period_days: 14,
-          metadata: { userId, plan },
-        },
-        metadata: { userId, plan },
-      },
-      { reqId },
-    );
+    let checkout: { id: string; url: string | null };
+    try {
+      checkout = await stripeFetch<{ id: string; url: string | null }>(
+        "/v1/checkout/sessions",
+        sessionPayload(customerId),
+        { reqId },
+      );
+    } catch (e) {
+      const m = e instanceof Error ? e.message : String(e);
+      if (m.includes("No such customer")) {
+        console.warn(`[checkout ${reqId}] stale customer ${customerId} (different Stripe mode); recreating live customer + retrying`);
+        customerId = await createLiveCustomer();
+        checkout = await stripeFetch<{ id: string; url: string | null }>(
+          "/v1/checkout/sessions",
+          sessionPayload(customerId),
+          { reqId },
+        );
+      } else {
+        throw e;
+      }
+    }
     checkoutUrl = checkout.url;
     checkoutId = checkout.id;
     console.log(`[checkout ${reqId}] session created id=${checkoutId} in ${Date.now() - ts}ms`);
