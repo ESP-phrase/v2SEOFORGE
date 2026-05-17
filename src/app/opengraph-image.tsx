@@ -32,24 +32,28 @@ export default function OGImage() {
             marginBottom: 56,
           }}
         >
-          {/* Logo tile — black bg with lime S */}
+          {/* Logo — gradient S, no container, with soft lime glow */}
           <div
             style={{
-              width: 96,
-              height: 96,
-              borderRadius: 22,
-              backgroundColor: "#000",
+              width: 110,
+              height: 110,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 60px rgba(190,248,72,0.55)",
             }}
           >
-            <svg width="72" height="72" viewBox="0 0 64 64">
+            <svg width="110" height="110" viewBox="0 0 64 64">
+              <defs>
+                <linearGradient id="og-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#d4ff7a" />
+                  <stop offset="55%" stopColor="#b3f048" />
+                  <stop offset="100%" stopColor="#7bbf3a" />
+                </linearGradient>
+              </defs>
               <path
-                d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
-                stroke="#bef848"
-                strokeWidth={9}
+                d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
+                stroke="url(#og-grad)"
+                strokeWidth={14}
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"

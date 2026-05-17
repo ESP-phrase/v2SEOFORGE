@@ -1,25 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
   <defs>
-    <radialGradient id="sf-bg" cx="50%" cy="50%" r="60%">
-      <stop offset="0%" stop-color="#1a1a1a"/>
-      <stop offset="100%" stop-color="#000000"/>
-    </radialGradient>
-    <filter id="sf-glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="1.6" result="b"/>
-      <feMerge>
-        <feMergeNode in="b"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <linearGradient id="s-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4ff7a"/>
+      <stop offset="55%" stop-color="#b3f048"/>
+      <stop offset="100%" stop-color="#7bbf3a"/>
+    </linearGradient>
+    <filter id="s-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.3"/>
     </filter>
   </defs>
-  <rect width="64" height="64" rx="14" fill="url(#sf-bg)"/>
   <path
-    d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
-    stroke="#bef848"
-    stroke-width="9"
+    d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
+    stroke="url(#s-grad)"
+    stroke-width="14"
     fill="none"
     stroke-linecap="round"
     stroke-linejoin="round"
-    filter="url(#sf-glow)"
+    filter="url(#s-shadow)"
   />
 </svg>

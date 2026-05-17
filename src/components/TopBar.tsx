@@ -61,21 +61,23 @@ export function TopBar({ username, isAdmin }: { username?: string; isAdmin?: boo
           href="/dashboard"
           className="flex items-center gap-2 font-extrabold no-underline shrink-0 px-1.5"
         >
-          <span
-            className="w-9 h-9 rounded-xl bg-black grid place-items-center shadow-[0_0_18px_rgba(190,248,72,0.45)] ring-1 ring-white/5"
-            aria-hidden
-          >
-            <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
-              <path
-                d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
-                stroke="#bef848"
-                strokeWidth="9"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
+          <svg width="34" height="34" viewBox="0 0 64 64" fill="none" aria-hidden className="drop-shadow-[0_0_8px_rgba(190,248,72,0.45)]">
+            <defs>
+              <linearGradient id="tb-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#d4ff7a" />
+                <stop offset="55%" stopColor="#b3f048" />
+                <stop offset="100%" stopColor="#7bbf3a" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
+              stroke="url(#tb-grad)"
+              strokeWidth="14"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           <span className="hidden sm:inline text-lg tracking-tight leading-none">
             <span className="text-text">SEO</span>
             <span className="text-accent">Forge</span>

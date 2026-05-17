@@ -23,11 +23,17 @@ export function DashboardMockup({ variant = "hero" }: { variant?: "hero" | "show
           <aside className="bg-bg-2 border-r border-border p-3 flex flex-col">
             <div className="flex items-center gap-1.5 px-2 py-1.5 mb-4">
               <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden>
-                <rect width="64" height="64" rx="14" fill="#0a0a0a" />
+                <defs>
+                  <linearGradient id="dm-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#d4ff7a" />
+                    <stop offset="55%" stopColor="#b3f048" />
+                    <stop offset="100%" stopColor="#7bbf3a" />
+                  </linearGradient>
+                </defs>
                 <path
-                  d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
-                  stroke="#bef848"
-                  strokeWidth="9"
+                  d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
+                  stroke="url(#dm-grad)"
+                  strokeWidth="14"
                   fill="none"
                   strokeLinecap="round"
                   strokeLinejoin="round"

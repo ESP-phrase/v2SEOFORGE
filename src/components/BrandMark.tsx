@@ -1,6 +1,7 @@
 /**
- * SEOForge brand mark — black rounded square with a lime, glowing "S" stroke.
- * Same shape rendered as /icon.svg so the favicon and in-page logo match.
+ * SEOForge brand mark — chunky gradient "S" with a soft drop shadow.
+ * No container background; renders cleanly on any backdrop.
+ * Same shape as /icon.svg so the favicon and in-page logo match.
  */
 export function BrandMark({
   size = 36,
@@ -19,27 +20,23 @@ export function BrandMark({
       className={className}
     >
       <defs>
-        <radialGradient id="sfm-bg" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="#1a1a1a" />
-          <stop offset="100%" stopColor="#000000" />
-        </radialGradient>
-        <filter id="sfm-glow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="1.6" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
+        <linearGradient id="sfm-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#d4ff7a" />
+          <stop offset="55%" stopColor="#b3f048" />
+          <stop offset="100%" stopColor="#7bbf3a" />
+        </linearGradient>
+        <filter id="sfm-shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#000" floodOpacity="0.3" />
         </filter>
       </defs>
-      <rect width="64" height="64" rx="14" fill="url(#sfm-bg)" />
       <path
-        d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
-        stroke="#bef848"
-        strokeWidth="9"
+        d="M50 22 a11 11 0 0 0 -11 -11 h-14 a11 11 0 0 0 0 22 h14 a11 11 0 0 1 0 22 h-14 a11 11 0 0 1 -11 -11"
+        stroke="url(#sfm-grad)"
+        strokeWidth="14"
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
-        filter="url(#sfm-glow)"
+        filter="url(#sfm-shadow)"
       />
     </svg>
   );

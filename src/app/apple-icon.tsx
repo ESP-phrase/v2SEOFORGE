@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
 // Apple touch icon — 180x180. Used when iOS users save the site to home screen.
+// Also referenced by Stripe products as the brand image on Checkout pages.
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
@@ -14,15 +15,21 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "radial-gradient(60% 60% at 50% 50%, #1a1a1a 0%, #000 100%)",
-          borderRadius: 38,
+          background: "transparent",
         }}
       >
-        <svg width="140" height="140" viewBox="0 0 64 64">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#d4ff7a" />
+              <stop offset="55%" stopColor="#b3f048" />
+              <stop offset="100%" stopColor="#7bbf3a" />
+            </linearGradient>
+          </defs>
           <path
-            d="M44 18 a10 10 0 0 0 -10 -10 h-8 a10 10 0 0 0 0 20 h8 a10 10 0 0 1 0 20 h-8 a10 10 0 0 1 -10 -10"
-            stroke="#bef848"
-            strokeWidth="9"
+            d="M140 62 a30 30 0 0 0 -30 -30 h-40 a30 30 0 0 0 0 60 h40 a30 30 0 0 1 0 60 h-40 a30 30 0 0 1 -30 -30"
+            stroke="url(#g)"
+            strokeWidth={40}
             fill="none"
             strokeLinecap="round"
             strokeLinejoin="round"
