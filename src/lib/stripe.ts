@@ -12,6 +12,16 @@
  */
 import Stripe from "stripe";
 
+/**
+ * Sanitize a Stripe key env var. Strips a leading U+FEFF (BOM) and any
+ * surrounding whitespace/newlines — PowerShell pipes and some text editors
+ * smuggle BOM bytes into env var values, which then break HTTP header
+ * validation ("Cannot convert argument to a ByteString …value of 65279").
+ */
+function cleanKey(raw: string | undefined): string {
+  return (raw ?? "").replace(/^﻿/, "").trim();
+}
+
 // Lazy singleton — Stripe constructor throws when key is empty, which breaks
 // Next's "collect page data" build step on Vercel where STRIPE_SECRET_KEY is
 // optional. Calling `stripe.xxx()` from a request lazily constructs.
@@ -19,7 +29,7 @@ let _stripe: Stripe | null = null;
 export const stripe = new Proxy({} as Stripe, {
   get(_t, prop) {
     if (!_stripe) {
-      const key = process.env.STRIPE_SECRET_KEY ?? "";
+      const key = cleanKey(process.env.STRIPE_SECRET_KEY);
       if (!key) throw new Error("STRIPE_SECRET_KEY not set");
       _stripe = new Stripe(key, {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,7 +172,7 @@ export async function stripeFetch<T = unknown>(
   payload: Record<string, StripeFormValue>,
   opts: { reqId?: string; maxAttempts?: number; timeoutMs?: number } = {},
 ): Promise<T> {
-  const key = process.env.STRIPE_SECRET_KEY ?? "";
+  const key = cleanKey(process.env.STRIPE_SECRET_KEY);
   if (!key) throw new Error("STRIPE_SECRET_KEY not set");
   const reqId = opts.reqId ?? "—";
   const maxAttempts = opts.maxAttempts ?? 5;
