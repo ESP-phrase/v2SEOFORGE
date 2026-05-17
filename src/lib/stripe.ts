@@ -57,6 +57,34 @@ export const stripe = new Proxy({} as Stripe, {
 
 export type PlanId = "hobby" | "operator" | "agency";
 export type Cadence = "monthly" | "annual";
+/** A/B test variants. "a" = current $1/14-day. "b" = $4.99/3-day + $39 Starter. */
+export type Variant = "a" | "b";
+
+/** Per-variant trial config — fee + duration. */
+export function trialConfig(variant: Variant): { trialDays: number; sharedTrialFee: number | null; sharedTrialFeePriceId: string | null } {
+  if (variant === "b") {
+    return {
+      trialDays: 3,
+      sharedTrialFee: 4.99,
+      sharedTrialFeePriceId: cleanKey(process.env.STRIPE_PRICE_VARIANT_B_TRIAL) || null,
+    };
+  }
+  return { trialDays: 14, sharedTrialFee: null, sharedTrialFeePriceId: null };
+}
+
+/** Variant-aware recurring price ID. Variant B's Starter is $39, not $29. */
+export function priceIdForVariant(plan: PlanId, cadence: Cadence, variant: Variant): string | null {
+  if (variant === "b" && plan === "hobby" && cadence === "monthly") {
+    return cleanKey(process.env.STRIPE_PRICE_VARIANT_B_STARTER) || null;
+  }
+  return priceIdFor(plan, cadence);
+}
+
+/** Variant-aware trial fee price ID. */
+export function trialFeePriceIdForVariant(plan: PlanId, variant: Variant): string | null {
+  const cfg = trialConfig(variant);
+  return cfg.sharedTrialFeePriceId ?? trialFeePriceIdFor(plan);
+}
 
 // Internal slugs kept as hobby/operator/agency for code/env-var/DB stability;
 // the user-facing names are Creator/Operator/Agency in the pricing page UI.

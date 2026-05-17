@@ -21,13 +21,14 @@ type Tier = {
   features: string[];
 };
 
-const TIERS: Tier[] = [
+// Variant A (default) — $1 hold, 14-day trial, Creator/Operator/Agency.
+const TIERS_A: Tier[] = [
   {
     name: "Creator",
     tagline: "For solo operators and a few niche sites.",
     trialFee: 1,
     priceMo: 29,
-    priceYr: 23,        // $276/yr → $23/mo equivalent (~20% off)
+    priceYr: 23,
     accent: false,
     cta: "Start 14-day trial",
     articles: "75 articles / mo",
@@ -46,7 +47,7 @@ const TIERS: Tier[] = [
     tagline: "Run a real portfolio on autopilot.",
     trialFee: 1,
     priceMo: 79,
-    priceYr: 63,        // $756/yr → $63/mo equivalent (~20% off)
+    priceYr: 63,
     accent: true,
     cta: "Start 14-day trial",
     articles: "250 articles / mo",
@@ -67,7 +68,7 @@ const TIERS: Tier[] = [
     tagline: "Power users, agencies, white-label clients.",
     trialFee: 1,
     priceMo: 199,
-    priceYr: 159,       // $1908/yr → $159/mo equivalent (~20% off)
+    priceYr: 159,
     accent: false,
     cta: "Start 14-day trial",
     articles: "1,000 articles / mo",
@@ -79,6 +80,72 @@ const TIERS: Tier[] = [
       "Team seats (up to 5)",
       "Priority Claude capacity",
       "API access",
+      "Slack support · 4h",
+      "Overage $0.15 / article",
+    ],
+  },
+];
+
+// Variant B (?v=b) — $4.99 paid trial, 3-day, Starter $39 / Growth $79 / Agency $199.
+// Same three internal plan slugs (hobby/operator/agency) under the hood —
+// just different fee, trial length, entry price, and labels.
+const TIERS_B: Tier[] = [
+  {
+    name: "Starter",
+    tagline: "For solo creators & niche site owners.",
+    trialFee: 4.99,
+    priceMo: 39,
+    priceYr: 31,
+    accent: false,
+    cta: "Start for $4.99",
+    articles: "75 articles / mo",
+    sites: "3 sites",
+    features: [
+      "AI keyword research",
+      "WordPress auto-publish",
+      "Quality gates + drafts review",
+      "Content planning + clustering",
+      "Activity log + cost tracking",
+      "Overage $0.49 / article",
+    ],
+  },
+  {
+    name: "Growth",
+    tagline: "For operators scaling multiple sites.",
+    trialFee: 4.99,
+    priceMo: 79,
+    priceYr: 63,
+    accent: true,
+    cta: "Start for $4.99",
+    articles: "250 articles / mo",
+    sites: "15 sites",
+    features: [
+      "Everything in Starter",
+      "Daily cron auto-publish",
+      "Advanced keyword research",
+      "Backlink opportunity finder",
+      "Self-hosted page-view analytics",
+      "Priority generation queue",
+      "Email support · 24h",
+      "Overage $0.29 / article",
+    ],
+  },
+  {
+    name: "Agency",
+    tagline: "For agencies & power users.",
+    trialFee: 4.99,
+    priceMo: 199,
+    priceYr: 159,
+    accent: false,
+    cta: "Start for $4.99",
+    articles: "1,000 articles / mo",
+    sites: "Unlimited sites",
+    features: [
+      "Everything in Growth",
+      "Team seats + client workspaces",
+      "White-label reports",
+      "API access",
+      "Priority Claude capacity",
       "Slack support · 4h",
       "Overage $0.15 / article",
     ],
@@ -134,7 +201,18 @@ const FAQ = [
 ];
 
 export default function PricingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+      <PricingPageImpl />
+    </Suspense>
+  );
+}
+
+function PricingPageImpl() {
   const [annual, setAnnual] = useState(false);
+  const sp = useSearchParams();
+  const variant: "a" | "b" = sp?.get("v") === "b" ? "b" : "a";
+  const TIERS = variant === "b" ? TIERS_B : TIERS_A;
 
   return (
     <div className="min-h-screen bg-bg text-text">
@@ -143,14 +221,18 @@ export default function PricingPage() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Start free for 14 days. <span className="text-accent">No risk.</span>
+            {variant === "b" ? (
+              <>Start for <span className="text-accent">$4.99.</span></>
+            ) : (
+              <>Start free for 14 days. <span className="text-accent">No risk.</span></>
+            )}
           </h1>
           <p className="text-muted text-base mt-3">
-            $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
+            {variant === "b"
+              ? "Today: $4.99 for 3-day premium access · Renews at your plan price unless cancelled · Cancel anytime in 2 clicks."
+              : "$1 verification hold to prevent abuse · Cancel anytime, no questions asked."}
           </p>
-          <Suspense fallback={null}>
-            <PricingErrorBanner />
-          </Suspense>
+          <PricingErrorBanner />
         </div>
 
         {/* Billing toggle — true switch with sliding knob */}
@@ -193,9 +275,12 @@ export default function PricingPage() {
 
         {/* Tier cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-          {TIERS.map((t) => {
+          {TIERS.map((t, idx) => {
             const price = annual ? t.priceYr : t.priceMo;
             const strike = annual ? t.priceMo : null;
+            // Map array index → internal plan slug. Both variants use the
+            // same 3 slugs under the hood: [hobby, operator, agency].
+            const slug = (["hobby", "operator", "agency"] as const)[idx];
             return (
               <div
                 key={t.name}
@@ -248,10 +333,7 @@ export default function PricingPage() {
                 <form
                   action={startCheckoutAction}
                   onSubmit={() => {
-                    console.log(`[pricing] Start trial click plan=${t.name.toLowerCase()} cadence=${annual ? "annual" : "monthly"}`);
-                    // Browser-pixel mid-funnel events. Value reports the
-                    // immediate cash collected (trial fee) so attribution
-                    // matches what Stripe actually charges today.
+                    console.log(`[pricing] Start trial click plan=${slug} cadence=${annual ? "annual" : "monthly"} variant=${variant}`);
                     const value = t.trialFee;
                     try {
                       const w = window as unknown as { ttq?: { track?: (e: string, p: Record<string, unknown>) => void } };
@@ -259,7 +341,7 @@ export default function PricingPage() {
                         value,
                         currency: "USD",
                         content_name: `${t.name} plan`,
-                        content_id: t.name.toLowerCase(),
+                        content_id: slug,
                         content_type: "product",
                       };
                       w.ttq?.track?.("AddToCart", props);
@@ -272,8 +354,9 @@ export default function PricingPage() {
                     } catch { /* ignore */ }
                   }}
                 >
-                  <input type="hidden" name="plan" value={t.name.toLowerCase()} />
+                  <input type="hidden" name="plan" value={slug} />
                   <input type="hidden" name="cadence" value={annual ? "annual" : "monthly"} />
+                  <input type="hidden" name="variant" value={variant} />
                   <button
                     type="submit"
                     className={`w-full px-4 py-3 text-sm font-extrabold rounded-xl transition-all ${
@@ -298,8 +381,8 @@ export default function PricingPage() {
           {[
             {
               icon: <ShieldIcon />,
-              title: "14-day paid trial",
-              body: "No credit card during trial",
+              title: variant === "b" ? "3-day premium trial" : "14-day trial",
+              body: variant === "b" ? "$4.99 today, renews at plan price" : "$1 verification hold",
             },
             {
               icon: <LockIcon />,

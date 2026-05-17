@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { stripe, stripeFetch, priceIdFor, trialFeePriceIdFor, TRIAL_FEE_USD, appUrl, isStripeConfigured, type PlanId, type Cadence } from "@/lib/stripe";
+import { stripe, stripeFetch, priceIdFor, priceIdForVariant, trialFeePriceIdFor, trialFeePriceIdForVariant, trialConfig, TRIAL_FEE_USD, appUrl, isStripeConfigured, type PlanId, type Cadence, type Variant } from "@/lib/stripe";
 
 function maskEmail(e?: string | null): string {
   if (!e) return "(none)";
@@ -17,7 +17,8 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   const reqId = Math.random().toString(36).slice(2, 8);
   const plan = String(formData.get("plan") ?? "") as PlanId;
   const cadence = String(formData.get("cadence") ?? "monthly") as Cadence;
-  console.log(`[checkout ${reqId}] start plan=${plan} cadence=${cadence}`);
+  const variant: Variant = formData.get("variant") === "b" ? "b" : "a";
+  console.log(`[checkout ${reqId}] start plan=${plan} cadence=${cadence} variant=${variant}`);
 
   if (!isStripeConfigured()) {
     console.error(`[checkout ${reqId}] aborted: Stripe not configured`);
@@ -32,17 +33,18 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   const email = session.user.email;
   console.log(`[checkout ${reqId}] authed user=${userId} email=${maskEmail(email)}`);
 
-  const priceId = priceIdFor(plan, cadence);
+  const priceId = priceIdForVariant(plan, cadence, variant);
   if (!priceId) {
-    console.error(`[checkout ${reqId}] no priceId for plan=${plan} cadence=${cadence}`);
-    redirect("/pricing?error=" + encodeURIComponent("That plan price is not configured."));
+    console.error(`[checkout ${reqId}] no priceId for plan=${plan} cadence=${cadence} variant=${variant}`);
+    redirect(`/pricing${variant === "b" ? "?v=b&" : "?"}error=${encodeURIComponent("That plan price is not configured.")}`);
   }
-  const trialFeePriceId = trialFeePriceIdFor(plan);
+  const trialFeePriceId = trialFeePriceIdForVariant(plan, variant);
   if (!trialFeePriceId) {
-    console.error(`[checkout ${reqId}] no trial fee priceId for plan=${plan}`);
-    redirect("/pricing?error=" + encodeURIComponent("Trial fee price is not configured."));
+    console.error(`[checkout ${reqId}] no trial fee priceId for plan=${plan} variant=${variant}`);
+    redirect(`/pricing${variant === "b" ? "?v=b&" : "?"}error=${encodeURIComponent("Trial fee price is not configured.")}`);
   }
-  console.log(`[checkout ${reqId}] resolved prices trial=${trialFeePriceId} recurring=${priceId}`);
+  const tCfg = trialConfig(variant);
+  console.log(`[checkout ${reqId}] resolved prices trial=${trialFeePriceId} recurring=${priceId} trialDays=${tCfg.trialDays}`);
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
@@ -96,13 +98,13 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
         { price: priceId,         quantity: 1 },
       ],
       success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl()}/pricing?status=cancel`,
+      cancel_url: `${appUrl()}/pricing${variant === "b" ? "?v=b&" : "?"}status=cancel`,
       allow_promotion_codes: true,
       subscription_data: {
-        trial_period_days: 14,
-        metadata: { userId, plan },
+        trial_period_days: tCfg.trialDays,
+        metadata: { userId, plan, variant },
       },
-      metadata: { userId, plan },
+      metadata: { userId, plan, variant },
     });
 
     // Two-line checkout: (1) one-time trial fee charged immediately, (2) the
@@ -176,7 +178,9 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   // path inside its helper; Promise.allSettled means a single failing pixel
   // doesn't take the others down. We still await — Vercel kills the function
   // the moment redirect() throws, so any unawaited work is lost.
-  const value = TRIAL_FEE_USD[plan];
+  // Variant B's trial fee is shared $4.99; variant A uses per-plan amounts
+  // from TRIAL_FEE_USD. Report what was actually charged today.
+  const value = tCfg.sharedTrialFee ?? TRIAL_FEE_USD[plan];
   try {
     const [{ sendTikTokEvent }, { sendRedditEvent }] = await Promise.all([
       import("@/lib/tiktokCapi"),
