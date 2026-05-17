@@ -103,8 +103,28 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (PUBLIC_EXACT.has(pathname)) return NextResponse.next();
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  // Explicit allowlist of authed-only path prefixes. Anything outside this
+  // list (including bogus URLs) falls through to Next.js — valid routes
+  // render normally, unknown routes hit src/app/not-found.tsx with a real
+  // 404 (instead of a 307 → /login soft-404 that wrecks SEO + UX).
+  const AUTH_PROTECTED = [
+    "/dashboard",
+    "/activity",
+    "/analysis",
+    "/analytics",
+    "/articles",
+    "/backlinks",
+    "/billing",
+    "/haro",
+    "/referrals",
+    "/sites",
+    "/admin",
+    "/pixel-dashboard",
+  ];
+  const isProtected = AUTH_PROTECTED.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+  if (!isProtected) return NextResponse.next();
 
   // Read the Auth.js session cookie. With database sessions on Auth.js v5 the
   // cookie name is the same; we just check presence here and let server
@@ -116,6 +136,7 @@ export async function middleware(req: NextRequest) {
   if (!sessionCookie?.value) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
+    url.searchParams.set("next", pathname + req.nextUrl.search);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();
