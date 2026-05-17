@@ -66,7 +66,9 @@ export const PLAN_CREDITS: Record<PlanId, number> = {
 
 /**
  * Map (plan, cadence) → recurring Stripe Price ID (the one that charges
- * monthly/annual after the trial ends).
+ * monthly/annual after the trial ends). Values are cleanKey()-stripped
+ * because PowerShell pipes can smuggle U+FEFF into env vars and Stripe
+ * rejects them with "No such price".
  */
 export function priceIdFor(plan: PlanId, cadence: Cadence): string | null {
   const map: Record<string, string | undefined> = {
@@ -77,7 +79,8 @@ export function priceIdFor(plan: PlanId, cadence: Cadence): string | null {
     agency_monthly:   process.env.STRIPE_PRICE_AGENCY_MONTHLY,
     agency_annual:    process.env.STRIPE_PRICE_AGENCY_ANNUAL,
   };
-  return map[`${plan}_${cadence}`] ?? null;
+  const v = cleanKey(map[`${plan}_${cadence}`]);
+  return v || null;
 }
 
 /**
@@ -90,7 +93,8 @@ export function trialFeePriceIdFor(plan: PlanId): string | null {
     operator: process.env.STRIPE_PRICE_OPERATOR_TRIAL,
     agency:   process.env.STRIPE_PRICE_AGENCY_TRIAL,
   };
-  return map[plan] ?? null;
+  const v = cleanKey(map[plan]);
+  return v || null;
 }
 
 /** Reverse lookup: which plan does a Stripe price ID correspond to? */
