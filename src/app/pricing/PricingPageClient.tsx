@@ -29,7 +29,7 @@ const TIERS: Tier[] = [
     priceMo: 29,
     priceYr: 23,
     accent: false,
-    cta: "Start 14-day trial",
+    cta: "Start 3-day trial",
     articles: "75 articles / mo",
     sites: "3 sites",
     features: [
@@ -44,11 +44,11 @@ const TIERS: Tier[] = [
   {
     name: "Operator",
     tagline: "Run a real portfolio on autopilot.",
-    trialFee: 1,
+    trialFee: 10,
     priceMo: 79,
     priceYr: 63,
     accent: true,
-    cta: "Start 14-day trial",
+    cta: "Start 3-day trial",
     articles: "250 articles / mo",
     sites: "15 sites",
     features: [
@@ -65,11 +65,11 @@ const TIERS: Tier[] = [
   {
     name: "Agency",
     tagline: "Power users, agencies, white-label clients.",
-    trialFee: 1,
+    trialFee: 30,
     priceMo: 199,
     priceYr: 159,
     accent: false,
-    cta: "Start 14-day trial",
+    cta: "Start 3-day trial",
     articles: "1,000 articles / mo",
     sites: "Unlimited sites",
     features: [
@@ -113,7 +113,7 @@ const FAQ = [
   },
   {
     q: "What's the $1 hold?",
-    a: "When you start a trial we authorize $1 on your card to prevent abuse from bots and throwaway accounts. It's released automatically — no actual charge for 14 days. Cancel before day 14 and you're never billed.",
+    a: "When you start a trial we charge a small upfront fee — $1 on Creator, $10 on Operator, $30 on Agency — to prevent abuse and confirm intent. You get 3 days of full premium access. Cancel before day 3 and you're never charged the monthly rate.",
   },
   {
     q: "Is the content actually good, or is it generic AI slop?",
@@ -143,10 +143,10 @@ export default function PricingPageClient() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Start free for 14 days. <span className="text-accent">No risk.</span>
+            3-day trial, then your plan. <span className="text-accent">No surprises.</span>
           </h1>
           <p className="text-muted text-base mt-3">
-            $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
+            Small upfront fee to prevent abuse · Cancel anytime before day 3.
           </p>
           <Suspense fallback={null}>
             <PricingErrorBanner />
@@ -298,8 +298,8 @@ export default function PricingPageClient() {
           {[
             {
               icon: <ShieldIcon />,
-              title: "14-day trial",
-              body: "$1 verification hold",
+              title: "3-day trial",
+              body: "Small upfront fee, monthly bills after",
             },
             {
               icon: <LockIcon />,
@@ -484,7 +484,7 @@ export default function PricingPageClient() {
             </Link>
           </div>
           <p className="text-muted-2 text-xs mt-6">
-            14-day trial · $1 verification hold · cancel anytime.
+            3-day trial · cancel anytime before day 3.
           </p>
         </div>
       </main>

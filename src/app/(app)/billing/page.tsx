@@ -200,7 +200,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                 <p className="text-muted text-xs mt-1">
                   Currently using {used}/{cap} on the{" "}
                   <span className="text-text font-semibold">{PLAN_LABEL[user.plan] ?? user.plan}</span>{" "}
-                  plan · 14-day money-back guarantee
+                  plan · cancel anytime before day 3 of trial
                 </p>
               </div>
             </div>

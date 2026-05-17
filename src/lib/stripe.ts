@@ -69,7 +69,7 @@ export function trialConfig(variant: Variant): { trialDays: number; sharedTrialF
       sharedTrialFeePriceId: cleanKey(process.env.STRIPE_PRICE_VARIANT_B_TRIAL) || null,
     };
   }
-  return { trialDays: 14, sharedTrialFee: null, sharedTrialFeePriceId: null };
+  return { trialDays: 3, sharedTrialFee: null, sharedTrialFeePriceId: null };
 }
 
 /** Variant-aware recurring price ID. Variant B's Starter is $39, not $29. */
@@ -149,12 +149,12 @@ export function planFromPriceId(priceId: string): PlanId | null {
   return null;
 }
 
-/** Per-plan trial fee in dollars — used for ad pixel value attribution.
- *  TEST MODE: temporarily set to $1 across the board. Revert to 5/5/9. */
+/** Per-plan trial fee in dollars — used for ad pixel value attribution
+ *  AND must match the Stripe trial-fee prices on each product. */
 export const TRIAL_FEE_USD: Record<PlanId, number> = {
   hobby: 1,
-  operator: 1,
-  agency: 1,
+  operator: 10,
+  agency: 30,
 };
 
 export function appUrl(): string {

@@ -39,7 +39,7 @@ export function StickyMobileCTA() {
             Start free in 60 sec
           </div>
           <div className="text-muted text-[0.65rem] uppercase tracking-wider font-semibold">
-            14-day trial · $1 hold
+            3-day trial · from $1
           </div>
         </div>
         <Link

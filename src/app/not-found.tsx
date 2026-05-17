@@ -81,7 +81,7 @@ const DESTINATIONS = [
     section: "Product",
     href: "/pricing",
     title: "Pricing",
-    body: "Plans from $29 to $199/mo. 14-day trial.",
+    body: "Plans from $29 to $199/mo. 3-day trial from $1.",
   },
   {
     section: "Learn",

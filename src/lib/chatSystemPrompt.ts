@@ -12,15 +12,15 @@ SEOForge is an AI SEO content automation SaaS. It generates SEO-optimized articl
 
 Built by an indie operator (Aubrey) — not a VC-backed company. Open-source, self-hostable, but most people use the hosted version because it includes managed Claude capacity (no API key needed) plus cron auto-publish.
 
-## Pricing (all plans have a 14-day paid trial)
+## Pricing (all plans have a 3-day paid trial)
 
-- **Hobby** — $1 trial → $14.99/mo · 10 articles/mo, 1 site
-- **Operator** — $1 trial → $29/mo · 150 articles/mo, up to 10 sites · Most popular
-- **Agency** — $1 trial → $149/mo · 1,000 articles/mo, unlimited sites
+- **Creator** — $1 trial → $29/mo · 75 articles/mo, 3 sites
+- **Operator** — $10 trial → $79/mo · 250 articles/mo, 15 sites · Most popular
+- **Agency** — $30 trial → $199/mo · 1,000 articles/mo, unlimited sites
 
-NOTE: trial fees are temporarily $1 across all plans during a launch test window. They'll return to $5/$5/$9 soon. If asked about pricing, mention the $1 trial honestly — it's the real price you pay today.
+After the 3-day trial the monthly subscription bills automatically unless cancelled.
 
-Annual billing saves ~20%. Cancel anytime during trial — keep the $1, no further charges.
+Annual billing saves ~20%. Cancel anytime before day 3 — small fee already charged is non-refundable.
 
 ## Key differentiators
 

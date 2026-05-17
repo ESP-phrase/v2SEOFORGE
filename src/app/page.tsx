@@ -54,7 +54,7 @@ export default async function LandingPage() {
               even on shorter TikTok-viewer viewports (e.g. iPhone 12 mini). */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-[0.78rem] text-muted">
             <span className="inline-flex items-center gap-1.5">
-              <CheckBadge /> 14-day trial
+              <CheckBadge /> 3-day trial
             </span>
             <span className="inline-flex items-center gap-1.5">
               <CheckBadge /> Cancel anytime
@@ -279,7 +279,7 @@ export default async function LandingPage() {
             Pricing
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-            14 days free. <span className="text-accent">Scale when you&rsquo;re ready.</span>
+            Try it for 3 days. <span className="text-accent">Scale when you&rsquo;re ready.</span>
           </h2>
           <p className="text-muted text-base mt-3">
             $1 verification hold to prevent abuse · Cancel anytime, no questions asked.
@@ -299,7 +299,7 @@ export default async function LandingPage() {
                 "WordPress auto-publish",
                 "Overage $0.45 / article",
               ],
-              cta: "Start 14-day trial",
+              cta: "Start 3-day trial",
               featured: false,
             },
             {
@@ -314,7 +314,7 @@ export default async function LandingPage() {
                 "Backlink outreach + analytics",
                 "Overage $0.30 / article",
               ],
-              cta: "Start 14-day trial",
+              cta: "Start 3-day trial",
               featured: true,
             },
             {
@@ -329,7 +329,7 @@ export default async function LandingPage() {
                 "Team seats + API access",
                 "Overage $0.15 / article",
               ],
-              cta: "Start 14-day trial",
+              cta: "Start 3-day trial",
               featured: false,
             },
           ].map((p) => (
@@ -394,8 +394,8 @@ export default async function LandingPage() {
               <span className="text-accent">while you sleep.</span>
             </h2>
             <p className="text-muted text-lg mt-5 max-w-md mx-auto">
-              14-day trial · $1 verification hold · cancel anytime. Spin up your first
-              site in under 60 seconds.
+              3-day trial · small upfront fee · cancel anytime before day 3. Spin up
+              your first site in under 60 seconds.
             </p>
             <div className="flex gap-3 mt-8 justify-center flex-wrap">
               <LinkButton href="/login?mode=signup" size="lg">
