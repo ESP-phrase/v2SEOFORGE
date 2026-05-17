@@ -46,7 +46,7 @@ export default async function LoginPage({
         </h1>
         <p className="text-muted text-sm mt-2">
           {isSignup
-            ? "Free Hobby plan, no credit card. Takes 30 seconds."
+            ? "Just email and password. Takes 30 seconds."
             : "Sign in to pick up where you left off."}
         </p>
       </div>

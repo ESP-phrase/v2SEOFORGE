@@ -484,7 +484,7 @@ export default function PricingPageClient() {
             </Link>
           </div>
           <p className="text-muted-2 text-xs mt-6">
-            No credit card on Hobby. 14-day free trial on paid plans. Cancel anytime.
+            14-day trial · $1 verification hold · cancel anytime.
           </p>
         </div>
       </main>

@@ -54,10 +54,10 @@ export default async function LandingPage() {
               even on shorter TikTok-viewer viewports (e.g. iPhone 12 mini). */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-[0.78rem] text-muted">
             <span className="inline-flex items-center gap-1.5">
-              <CheckBadge /> Free Hobby plan
+              <CheckBadge /> 14-day trial
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <CheckBadge /> No credit card
+              <CheckBadge /> Cancel anytime
             </span>
             <span className="inline-flex items-center gap-1.5">
               <CheckBadge /> First article in 10 min
@@ -394,8 +394,8 @@ export default async function LandingPage() {
               <span className="text-accent">while you sleep.</span>
             </h2>
             <p className="text-muted text-lg mt-5 max-w-md mx-auto">
-              Free to start. No credit card. Spin up your first site in under 60
-              seconds.
+              14-day trial · $1 verification hold · cancel anytime. Spin up your first
+              site in under 60 seconds.
             </p>
             <div className="flex gap-3 mt-8 justify-center flex-wrap">
               <LinkButton href="/login?mode=signup" size="lg">

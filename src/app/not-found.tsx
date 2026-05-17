@@ -69,7 +69,7 @@ const DESTINATIONS = [
     section: "Get started",
     href: "/login?mode=signup",
     title: "Create an account",
-    body: "Free Hobby plan, no credit card. Takes 30 seconds.",
+    body: "Just email and password. Takes 30 seconds.",
   },
   {
     section: "Product",
