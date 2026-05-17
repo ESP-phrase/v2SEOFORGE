@@ -15,14 +15,16 @@ export default async function LoginPage({
 }) {
   const { error, mode, next } = await searchParams;
   const isSignup = mode === "signup";
-  // Only forward same-origin paths to defeat open-redirect abuse via ?next=
   const nextPath = next && next.startsWith("/") && !next.startsWith("//") ? next : "";
   const nextQs = nextPath ? `&next=${encodeURIComponent(nextPath)}` : "";
+  const oppositeHref = isSignup
+    ? `/login${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`
+    : `/login?mode=signup${nextQs}`;
 
   return (
     <>
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight whitespace-nowrap">
+      <div className="text-center mb-7">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
           {isSignup ? (
             <>
               <span className="text-text">Start with </span>
@@ -34,22 +36,14 @@ export default async function LoginPage({
               <span className="text-accent">back</span>
             </>
           )}
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="inline-block ml-1 -mt-2 text-accent align-middle"
-            aria-hidden
-          >
-            <path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2z" />
-          </svg>
         </h1>
-        <p className="text-muted text-sm mt-2">
-          {isSignup
-            ? "Just email and password. Takes 30 seconds."
-            : "Sign in to pick up where you left off."}
-        </p>
+        {isSignup ? (
+          <p className="text-muted text-sm mt-2">
+            Free 3-day trial · cancel anytime · no contracts
+          </p>
+        ) : (
+          <p className="text-muted text-sm mt-2">Sign in to pick up where you left off.</p>
+        )}
       </div>
 
       <div className="relative">
@@ -68,73 +62,60 @@ export default async function LoginPage({
           }}
         />
         <div className="relative bg-card-grad rounded-2xl p-7 shadow-panel">
-          {/* Mode toggle */}
-          <div className="grid grid-cols-2 gap-1 p-1 mb-6 bg-bg border border-border rounded-xl text-sm font-bold">
-            <Link
-              href={`/login${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
-              className={`text-center py-2 rounded-lg transition-colors no-underline ${
-                !isSignup ? "bg-accent text-black" : "text-muted hover:text-text"
-              }`}
-            >
-              Sign in
-            </Link>
-            <Link
-              href={`/login?mode=signup${nextQs}`}
-              className={`text-center py-2 rounded-lg transition-colors no-underline ${
-                isSignup ? "bg-accent text-black" : "text-muted hover:text-text"
-              }`}
-            >
-              Sign up
-            </Link>
-          </div>
-
           {error ? (
             <div className="bg-[rgba(248,113,113,0.12)] text-danger border border-[rgba(248,113,113,0.3)] rounded-lg px-3.5 py-2.5 mb-4 text-sm">
               {error}
             </div>
           ) : null}
 
-          {/* Google */}
+          {/* Primary path: Google OAuth — visually dominant. Clarity recordings
+              showed users bouncing at the password form; one-tap Google removes
+              the typing friction entirely. */}
           <form action={signInWithGoogleAction}>
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-900 rounded-xl font-semibold text-sm hover:bg-gray-100 transition-colors mb-3"
+              className="relative w-full flex items-center justify-center gap-3 px-4 py-4 bg-white text-gray-900 rounded-xl font-bold text-base hover:bg-gray-100 transition-colors"
             >
-              <svg width="20" height="20" viewBox="0 0 18 18" aria-hidden>
+              <svg width="22" height="22" viewBox="0 0 18 18" aria-hidden>
                 <path fill="#4285F4" d="M16.51 8.18c0-.57-.05-1.13-.15-1.66H9v3.13h4.21c-.18.99-.74 1.83-1.58 2.39v1.97h2.55c1.49-1.38 2.34-3.41 2.34-5.83z" />
                 <path fill="#34A853" d="M9 17c2.13 0 3.92-.71 5.23-1.92l-2.55-1.97c-.71.47-1.61.75-2.68.75-2.06 0-3.81-1.39-4.43-3.26H1.93v2.04C3.23 15.18 5.92 17 9 17z" />
                 <path fill="#FBBC05" d="M4.57 10.6c-.16-.47-.25-.97-.25-1.5 0-.52.09-1.03.25-1.5V5.55H1.93C1.34 6.61 1 7.78 1 9.1c0 1.32.34 2.49.93 3.55l2.64-2.05z" />
                 <path fill="#EA4335" d="M9 4.34c1.16 0 2.21.4 3.03 1.18l2.27-2.27C12.92 1.99 11.13 1.2 9 1.2 5.92 1.2 3.23 3.02 1.93 5.55l2.64 2.05C5.19 5.73 6.94 4.34 9 4.34z" />
               </svg>
-              {isSignup ? "Sign up with Google" : "Continue with Google"}
+              {isSignup ? "Continue with Google" : "Sign in with Google"}
+              {isSignup ? (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-accent text-black text-[0.55rem] font-black uppercase tracking-wider px-1.5 py-0.5 rounded">
+                  1-tap
+                </span>
+              ) : null}
             </button>
           </form>
 
-          {/* GitHub */}
+          {/* GitHub — only if configured */}
           {isGitHubAuthConfigured() ? (
-            <form action={signInWithGitHubAction}>
+            <form action={signInWithGitHubAction} className="mt-2">
               <button
                 type="submit"
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#1a1a1a] text-white border border-white/10 rounded-xl font-semibold text-sm hover:bg-[#2a2a2a] transition-colors"
               >
-                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
                   <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
                 </svg>
-                {isSignup ? "Sign up with GitHub" : "Continue with GitHub"}
+                Continue with GitHub
               </button>
             </form>
           ) : null}
 
           {/* Divider */}
-          <div className="flex items-center gap-3 my-6">
+          <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-border" />
             <span className="text-muted-2 text-[0.6rem] uppercase tracking-[0.18em] font-bold">
-              or use email & password
+              or use email
             </span>
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          {/* Email + password form */}
+          {/* Secondary path: email + password */}
           <form action={isSignup ? signUpAction : signInWithPasswordAction} className="space-y-3">
             {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
             <div className="relative">
@@ -194,14 +175,13 @@ export default async function LoginPage({
             />
           </form>
 
-          {/* Footer note */}
-          <div className="flex items-center justify-center gap-1.5 text-muted-2 text-xs mt-5">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent" aria-hidden>
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            {isSignup
-              ? "10 free articles every month. Cancel anytime."
-              : "We'll keep you signed in for 14 days."}
+          {/* Subtle swap link replaces the old tab toggle that confused users
+              into thinking it was the submit button. */}
+          <div className="text-center mt-5 text-muted text-xs">
+            {isSignup ? "Already have an account? " : "Don't have an account yet? "}
+            <Link href={oppositeHref} className="text-accent font-semibold hover:underline no-underline">
+              {isSignup ? "Sign in →" : "Sign up free →"}
+            </Link>
           </div>
         </div>
       </div>
