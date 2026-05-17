@@ -35,7 +35,7 @@ const SECTIONS: { title: string; lines: string[] }[] = [
     ],
   },
   {
-    title: "Destination URLs — sales landings (match ad angle to landing)",
+    title: "Destination URLs — TikTok sales landings",
     lines: [
       "https://www.seoforge.org/start?utm_source=tiktok&utm_content=cold",
       "https://www.seoforge.org/proof?utm_source=tiktok&utm_content=social_proof",
@@ -45,11 +45,68 @@ const SECTIONS: { title: string; lines: string[] }[] = [
     ],
   },
   {
-    title: "Destination URLs — per ad-set tracking",
+    title: "Destination URLs — TikTok per ad-set",
     lines: [
       "https://www.seoforge.org/pricing?utm_source=tiktok&utm_content=adset_1",
       "https://www.seoforge.org/pricing?utm_source=tiktok&utm_content=niche_affiliate",
       "https://www.seoforge.org/pricing?utm_source=tiktok&utm_content=side_hustle",
+    ],
+  },
+  {
+    title: "Destination URLs — Microsoft (Bing) Ads sales landings",
+    lines: [
+      "https://www.seoforge.org/start?utm_source=microsoft&utm_medium=cpc&utm_content=cold",
+      "https://www.seoforge.org/proof?utm_source=microsoft&utm_medium=cpc&utm_content=social_proof",
+      "https://www.seoforge.org/pain?utm_source=microsoft&utm_medium=cpc&utm_content=pain_aware",
+      "https://www.seoforge.org/workspace?utm_source=microsoft&utm_medium=cpc&utm_content=demo",
+      "https://www.seoforge.org/pricing?utm_source=microsoft&utm_medium=cpc&utm_content=direct",
+    ],
+  },
+  {
+    title: "Destination URLs — Microsoft (Bing) Ads per ad-group",
+    lines: [
+      "https://www.seoforge.org/pricing?utm_source=microsoft&utm_medium=cpc&utm_content=adgroup_1",
+      "https://www.seoforge.org/pricing?utm_source=microsoft&utm_medium=cpc&utm_content=niche_affiliate",
+      "https://www.seoforge.org/pricing?utm_source=microsoft&utm_medium=cpc&utm_content=side_hustle",
+      "https://www.seoforge.org/pricing?utm_source=microsoft&utm_medium=cpc&utm_content=brand",
+      "https://www.seoforge.org/pricing?utm_source=microsoft&utm_medium=cpc&utm_content=competitor",
+    ],
+  },
+  {
+    title: "Microsoft Search Ads — high-intent keyword headlines (under 30 chars each)",
+    lines: [
+      "AI Writes Your Blog Posts",
+      "75 SEO Articles a Month",
+      "WordPress on Autopilot",
+      "Skip the Writing. Rank.",
+      "$1 to Start. Cancel Free.",
+      "Auto-Publish SEO Content",
+      "Set It. Sleep. Rank.",
+      "Beat Your Niche on Google",
+    ],
+  },
+  {
+    title: "Microsoft Search Ads — descriptions (under 90 chars each)",
+    lines: [
+      "Auto-publish 75 SEO articles to your WordPress site every month. $1 trial. Cancel anytime.",
+      "Claude writes SERP-optimized articles + publishes to WordPress. Start for $1. 3-day trial.",
+      "Stop juggling 6 SEO tools. One workspace handles research, writing, publishing, tracking.",
+      "1,000+ operators publishing 75+ ranked articles a month. Start for $1, cancel before day 3.",
+    ],
+  },
+  {
+    title: "Bing keyword seed list (start here — phrase match)",
+    lines: [
+      "ai seo content tool",
+      "auto blog post generator",
+      "wordpress ai content plugin",
+      "ai content for seo",
+      "automated seo article writer",
+      "ai blog automation",
+      "wordpress auto publish ai",
+      "ai content marketing tool",
+      "best ai writer for seo",
+      "ai seo article generator",
     ],
   },
   {
