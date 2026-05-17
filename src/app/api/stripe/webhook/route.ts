@@ -29,7 +29,10 @@ async function syncFromSubscription(sub: Stripe.Subscription) {
   const user = await prisma.user.findFirst({ where: { stripeCustomerId: customerId } });
   if (!user) return;
 
-  const wasHobby = user.plan === "hobby";
+  // First-paid signal: did this user have a subscription before this sync?
+  // With the v2 pricing stack every plan is paid (no free tier), so we can't
+  // detect "first paid" by checking plan slug — use stripeSubId instead.
+  const firstPaid = !user.stripeSubId;
 
   await prisma.user.update({
     where: { id: user.id },
@@ -43,11 +46,12 @@ async function syncFromSubscription(sub: Stripe.Subscription) {
     },
   });
 
-  // Reddit conversion: fire Purchase when a hobby user upgrades to a paid plan.
-  if (active && wasHobby && plan !== "hobby") {
+  // Fire conversion events on the user's first paid subscription. Internal
+  // slug "hobby" maps to Creator ($29) under the v2 pricing stack.
+  if (active && firstPaid) {
+    const value = plan === "hobby" ? 29 : plan === "operator" ? 79 : 199; // agency
     try {
       const { sendRedditEvent } = await import("@/lib/redditCapi");
-      const value = plan === "operator" ? 29 : plan === "agency" ? 149 : 0;
       await sendRedditEvent({
         eventName: "Purchase",
         email: user.email,
@@ -62,7 +66,6 @@ async function syncFromSubscription(sub: Stripe.Subscription) {
     }
     try {
       const { sendTikTokEvent } = await import("@/lib/tiktokCapi");
-      const value = plan === "operator" ? 29 : plan === "agency" ? 149 : 0;
       await sendTikTokEvent({
         eventName: "CompletePayment",
         email: user.email,
