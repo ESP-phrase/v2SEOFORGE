@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { stripe, priceIdFor, trialFeePriceIdFor, TRIAL_FEE_USD, appUrl, isStripeConfigured, type PlanId, type Cadence } from "@/lib/stripe";
+import { stripe, stripeFetch, priceIdFor, trialFeePriceIdFor, TRIAL_FEE_USD, appUrl, isStripeConfigured, type PlanId, type Cadence } from "@/lib/stripe";
 
 function maskEmail(e?: string | null): string {
   if (!e) return "(none)";
@@ -61,15 +61,21 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   let checkoutUrl: string | null = null;
   let checkoutId: string | null = null;
   try {
-    // Reuse existing customer if present, else create one.
+    // Reuse existing customer if present, else create one. Using stripeFetch
+    // (raw fetch with manual retry + logs) instead of the SDK because the
+    // SDK's connection pool has been unreliable on Vercel cold starts,
+    // surfacing as opaque "An error occurred with our connection to Stripe.
+    // Request was retried N times" failures. stripeFetch logs each attempt
+    // so the exact failure mode lands in Vercel function logs.
     let customerId = user.stripeCustomerId;
     if (!customerId) {
       console.log(`[checkout ${reqId}] creating Stripe customer…`);
       const tc = Date.now();
-      const c = await stripe.customers.create({
-        email: email ?? undefined,
-        metadata: { userId },
-      });
+      const c = await stripeFetch<{ id: string }>(
+        "/v1/customers",
+        { email: email ?? undefined, "metadata[userId]": userId },
+        { reqId },
+      );
       customerId = c.id;
       await prisma.user.update({ where: { id: userId }, data: { stripeCustomerId: customerId } });
       console.log(`[checkout ${reqId}] customer created id=${customerId} in ${Date.now() - tc}ms`);
@@ -83,23 +89,27 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
     // rate. Stripe Checkout handles both line items in one session.
     console.log(`[checkout ${reqId}] creating Stripe checkout session…`);
     const ts = Date.now();
-    const checkout = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      customer: customerId,
-      payment_method_types: ["card", "link"],
-      line_items: [
-        { price: trialFeePriceId, quantity: 1 },  // one-time trial fee
-        { price: priceId,         quantity: 1 },  // recurring subscription
-      ],
-      success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl()}/pricing?status=cancel`,
-      allow_promotion_codes: true,
-      subscription_data: {
-        trial_period_days: 14,
+    const checkout = await stripeFetch<{ id: string; url: string | null }>(
+      "/v1/checkout/sessions",
+      {
+        mode: "subscription",
+        customer: customerId,
+        payment_method_types: ["card", "link"],
+        line_items: [
+          { price: trialFeePriceId, quantity: 1 },
+          { price: priceId,         quantity: 1 },
+        ],
+        success_url: `${appUrl()}/billing?status=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${appUrl()}/pricing?status=cancel`,
+        allow_promotion_codes: true,
+        subscription_data: {
+          trial_period_days: 14,
+          metadata: { userId, plan },
+        },
         metadata: { userId, plan },
       },
-      metadata: { userId, plan },
-    });
+      { reqId },
+    );
     checkoutUrl = checkout.url;
     checkoutId = checkout.id;
     console.log(`[checkout ${reqId}] session created id=${checkoutId} in ${Date.now() - ts}ms`);

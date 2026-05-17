@@ -121,3 +121,104 @@ export function appUrl(): string {
 export function isStripeConfigured(): boolean {
   return !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
 }
+
+/**
+ * Raw-fetch Stripe REST call. Used for the checkout-creation hot path where
+ * the SDK's connection management has been unreliable on Vercel cold starts.
+ *
+ * - Encodes payload as application/x-www-form-urlencoded with the bracket
+ *   notation Stripe expects for nested arrays/objects.
+ * - Manual retry with exponential backoff. Each attempt logs its outcome so
+ *   we can see in Vercel function logs exactly where the failure is.
+ * - Throws the final error if all attempts fail; caller decides UX.
+ */
+type StripeFormValue = string | number | boolean | null | undefined | StripeFormValue[] | { [k: string]: StripeFormValue };
+
+function encodeForm(payload: Record<string, StripeFormValue>, prefix = ""): string[] {
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(payload)) {
+    if (v === undefined || v === null) continue;
+    const key = prefix ? `${prefix}[${k}]` : k;
+    if (Array.isArray(v)) {
+      v.forEach((item, i) => {
+        const subKey = `${key}[${i}]`;
+        if (typeof item === "object" && item !== null && !Array.isArray(item)) {
+          out.push(...encodeForm(item as Record<string, StripeFormValue>, subKey));
+        } else {
+          out.push(`${encodeURIComponent(subKey)}=${encodeURIComponent(String(item))}`);
+        }
+      });
+    } else if (typeof v === "object") {
+      out.push(...encodeForm(v as Record<string, StripeFormValue>, key));
+    } else {
+      out.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(v))}`);
+    }
+  }
+  return out;
+}
+
+export async function stripeFetch<T = unknown>(
+  path: string,
+  payload: Record<string, StripeFormValue>,
+  opts: { reqId?: string; maxAttempts?: number; timeoutMs?: number } = {},
+): Promise<T> {
+  const key = process.env.STRIPE_SECRET_KEY ?? "";
+  if (!key) throw new Error("STRIPE_SECRET_KEY not set");
+  const reqId = opts.reqId ?? "—";
+  const maxAttempts = opts.maxAttempts ?? 5;
+  const timeoutMs = opts.timeoutMs ?? 8000;
+  const body = encodeForm(payload).join("&");
+  const url = `https://api.stripe.com${path}`;
+
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const t0 = Date.now();
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(new Error(`timeout after ${timeoutMs}ms`)), timeoutMs);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Stripe-Version": "2024-12-18.acacia",
+        },
+        body,
+        signal: ac.signal,
+        // Don't keep TCP connections alive — Vercel cold starts re-use stale
+        // pools otherwise. Each call gets a fresh connection.
+        keepalive: false,
+      });
+      clearTimeout(timer);
+      const txt = await res.text();
+      if (!res.ok) {
+        let msg = `Stripe ${res.status}`;
+        try {
+          const j = JSON.parse(txt);
+          msg = j?.error?.message ? `Stripe ${res.status}: ${j.error.message}` : msg;
+        } catch { /* fall through */ }
+        console.error(`[stripeFetch ${reqId}] ${path} attempt ${attempt}/${maxAttempts} HTTP ${res.status} in ${Date.now() - t0}ms: ${msg}`);
+        // 4xx is a client error; retrying won't help. Throw immediately.
+        if (res.status >= 400 && res.status < 500) {
+          throw new Error(msg);
+        }
+        lastErr = new Error(msg);
+      } else {
+        console.log(`[stripeFetch ${reqId}] ${path} attempt ${attempt} OK in ${Date.now() - t0}ms`);
+        return JSON.parse(txt) as T;
+      }
+    } catch (e) {
+      clearTimeout(timer);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(`[stripeFetch ${reqId}] ${path} attempt ${attempt}/${maxAttempts} threw in ${Date.now() - t0}ms: ${msg}`);
+      lastErr = e;
+      // Client errors thrown above shouldn't retry — re-throw
+      if (e instanceof Error && e.message.startsWith("Stripe 4")) throw e;
+    }
+    // Exponential backoff before next attempt: 200, 400, 800, 1600ms
+    if (attempt < maxAttempts) {
+      await new Promise((r) => setTimeout(r, 200 * 2 ** (attempt - 1)));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+}
